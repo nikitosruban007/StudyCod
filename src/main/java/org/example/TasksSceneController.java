@@ -11,6 +11,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
@@ -33,7 +34,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -50,6 +50,7 @@ public class TasksSceneController {
     @FXML private Button generateTask;
     @FXML private Button lessonRead;
     @FXML private TextArea lessonContent;
+    @FXML private TextField consoleInput; // нове поле для вводу даних
 
     private Stage primaryStage;
     private String currentLesson = null;
@@ -58,6 +59,9 @@ public class TasksSceneController {
     private static final String DB_USER = "nikitosruban007";
     private static final String DB_PASSWORD = "Nikitos121109";
     private static String currentTaskText = null;
+
+    // Зберігаємо поточний процес, щоб мати доступ до його стандартного вводу
+    private Process currentProcess = null;
 
     private static final String KEYWORD_PATTERN = "\\b(abstract|assert|boolean|break|byte|case|catch|char|class|const|continue|default|do|double|else|enum|extends|final|finally|float|for|goto|if|implements|import|instanceof|int|interface|long|native|new|null|package|private|protected|public|return|short|static|strictfp|super|switch|synchronized|this|throw|throws|transient|try|void|volatile|while)\\b";
     private static final String PAREN_PATTERN = "\\(|\\)";
@@ -137,6 +141,19 @@ public class TasksSceneController {
             codeEditor.textProperty().addListener((obs, oldText, newText) ->
                     codeEditor.setStyleSpans(0, computeHighlighting(newText)));
         }
+        // Налаштовуємо consoleInput: при натисканні Enter текст надсилається у потік стандартного вводу процесу
+        consoleInput.setOnAction(e -> {
+            if (currentProcess != null) {
+                try (BufferedWriter bw = new BufferedWriter(
+                        new OutputStreamWriter(currentProcess.getOutputStream(), StandardCharsets.UTF_8))) {
+                    bw.write(consoleInput.getText() + "\n");
+                    bw.flush();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+                consoleInput.clear();
+            }
+        });
     }
 
     private String getIndent(String text) {
@@ -186,11 +203,15 @@ public class TasksSceneController {
 
     @FXML
     private void generateTask(ActionEvent event) {
-        lessonContent.setVisible(true);
-        lessonContent.setText("");
-        launchcode.setDisable(true);
-        checkTask.setDisable(true);
-        lessonRead.setVisible(true);
+        generateTask.setDisable(true);
+        lessonRead.setDisable(true);
+        Platform.runLater(() -> {
+            lessonContent.setVisible(true);
+            lessonContent.setText("");
+            launchcode.setDisable(true);
+            checkTask.setDisable(true);
+            lessonRead.setVisible(true);
+        });
         new Thread(() -> {
             String task;
             String template = "import java.util.*;\n" +
@@ -200,20 +221,26 @@ public class TasksSceneController {
                     "        \n" +
                     "    }\n" +
                     "}";
-            if ((StudyCod.getTaskNum() / StudyCod.getControlNum()) % 26 != 1) {
-                task = StudyCod.generateUniqueTask(StudyCod.getDifus(StudyCod.getId()), StudyCod.getTopicsFromDB(StudyCod.getId()));
+            if (StudyCod.getTaskNum() % 26 != 0) {
+                task = StudyCod.generateUniqueTask(StudyCod.getDifus(), StudyCod.getTopicsFromDB(StudyCod.getId()));
                 String topic = StudyCod.generateTopic(task);
                 setCurrentTopic(topic);
                 StudyCod.saveTopicToDB(topic);
-                setCurrentLesson(StudyCod.generateLesson(task, currentTopic));
+                String lesson = StudyCod.generateLesson(task, currentTopic);
+                setCurrentLesson(lesson);
                 currentTaskText = task;
+                loadLesson(topic, lesson);
+                lessonRead.setDisable(false);
                 Platform.runLater(() -> {
                     taskListView.getItems().add("Завдання №" + StudyCod.getTaskNum());
                     taskDescription.setText(task);
                     codeEditor.replaceText(template);
                     StudyCod.saveTaskToDB(task, template);
+                    lessonRead.setDisable(false);
+                    generateTask.setDisable(true);
+                    launchcode.setDisable(false);
+                    checkTask.setDisable(false);
                 });
-                loadLesson();
             } else {
                 task = StudyCod.generateControlTask(StudyCod.getDifus(), StudyCod.getTopicsFromDB(StudyCod.getId()));
                 currentTaskText = task;
@@ -222,22 +249,21 @@ public class TasksSceneController {
                     taskDescription.setText(task);
                     codeEditor.replaceText(template);
                     StudyCod.saveTaskToDB(task, template);
+                    loadLesson("Контроль знань №" + StudyCod.getControlNum(), "");
+                    lessonRead.setDisable(false);
+                    generateTask.setDisable(true);
+                    launchcode.setDisable(false);
+                    checkTask.setDisable(false);
                 });
-                loadLesson();
             }
-            Platform.runLater(() -> {
-                lessonRead.setDisable(false);
-                generateTask.setDisable(true);
-                launchcode.setDisable(false);
-                checkTask.setDisable(false);
-            });
         }).start();
     }
 
     @FXML
-    private void loadLesson() {
-        if ((StudyCod.getTaskNum() / StudyCod.getControlNum()) % 26 != 1) {
-            lessonContent.setText(getCurrentTopic() + "\n" + getCurrentLesson());
+    private void loadLesson(String topic, String lesson) {
+        int i = StudyCod.getTaskNum() % 26;
+        if (i != 0) {
+            lessonContent.setText(topic + "\n" + lesson);
             lessonContent.setEditable(false);
             launchcode.setDisable(true);
             checkTask.setDisable(true);
@@ -259,61 +285,92 @@ public class TasksSceneController {
         lessonRead.setVisible(false);
     }
 
-    @FXML
-    private void runCode(ActionEvent event) throws IOException, InterruptedException {
-        String code = codeEditor.getText();
-        String codeWithoutPackage = removePackageDeclaration(code);
-        File tempDir = new File(System.getProperty("java.io.tmpdir"), "codeRunner");
-        if (!tempDir.exists()) {
-            tempDir.mkdirs();
-        }
-        File mainFile = new File(tempDir, "Main.java");
-        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(mainFile), StandardCharsets.UTF_8))) {
-            writer.write(codeWithoutPackage);
-        }
-        Process compileProcess = new ProcessBuilder("javac", "-encoding", "UTF-8", mainFile.getAbsolutePath())
-                .redirectErrorStream(true)
-                .start();
-        compileProcess.waitFor();
-        String compileOutput = readStream(compileProcess.getInputStream());
-        if (compileProcess.exitValue() == 0) {
-            Process runProcess = new ProcessBuilder("java", "-Dfile.encoding=UTF-8", "-cp", tempDir.getAbsolutePath(), "Main")
-                    .redirectErrorStream(true)
-                    .start();
-            runProcess.waitFor();
-            String runOutput = readStream(runProcess.getInputStream());
-            consoleOutput.setText(runOutput);
-        } else {
-            consoleOutput.setText("Compilation failed:\n" + compileOutput);
-        }
-    }
+        @FXML
+        private void runCode(ActionEvent event) {
+            new Thread(() -> {
+                try {
+                    String code = codeEditor.getText();
+                    String codeWithoutPackage = removePackageDeclaration(code);
 
-    private String removePackageDeclaration(String code) {
-        StringBuilder sb = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new StringReader(code))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (!line.trim().startsWith("package "))
-                    sb.append(line).append("\n");
+                    File tempDir = new File(System.getProperty("java.io.tmpdir"), "codeRunner");
+                    if (!tempDir.exists()) {
+                        tempDir.mkdirs();
+                    }
+
+                    File mainFile = new File(tempDir, "Main.java");
+                    try (BufferedWriter writer = new BufferedWriter(
+                            new OutputStreamWriter(new FileOutputStream(mainFile), StandardCharsets.UTF_8))) {
+                        writer.write(codeWithoutPackage);
+                    }
+
+                    Process compileProcess = new ProcessBuilder(
+                            "javac", "-encoding", "UTF-8", mainFile.getAbsolutePath())
+                            .redirectErrorStream(true)
+                            .start();
+                    compileProcess.waitFor();
+
+                    String compileOutput = readStream(compileProcess.getInputStream());
+                    if (compileProcess.exitValue() != 0) {
+                        Platform.runLater(() -> consoleOutput.setText("Помилка компіляції:\n" + compileOutput));
+                        return;
+                    }
+
+                    currentProcess = new ProcessBuilder(
+                            "java", "-Dfile.encoding=UTF-8", "-cp", tempDir.getAbsolutePath(), "Main")
+                            .redirectErrorStream(true)
+                            .start();
+
+                    new Thread(() -> {
+                        try (BufferedReader reader = new BufferedReader(
+                                new InputStreamReader(currentProcess.getInputStream(), StandardCharsets.UTF_8))) {
+                            String line;
+                            StringBuilder sb = new StringBuilder();
+                            while ((line = reader.readLine()) != null) {
+                                sb.append(line).append("\n");
+                                String output = sb.toString();
+                                Platform.runLater(() -> consoleOutput.setText(output));
+                            }
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
+                    }).start();
+
+                    currentProcess.waitFor();
+
+                } catch (Exception e) {
+                    Platform.runLater(() -> consoleOutput.setText("Помилка виконання: " + e.getMessage()));
+                }
+            }).start();
+        }
+
+        private String removePackageDeclaration(String code) {
+            StringBuilder sb = new StringBuilder();
+            try (BufferedReader reader = new BufferedReader(new StringReader(code))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (!line.trim().startsWith("package "))
+                        sb.append(line).append("\n");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+            return sb.toString();
         }
-        return sb.toString();
-    }
 
-    private String readStream(InputStream inputStream) throws IOException {
-        StringBuilder output = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                output.append(line).append("\n");
+        private String readStream(InputStream inputStream) throws IOException {
+            StringBuilder output = new StringBuilder();
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    output.append(line).append("\n");
+                }
             }
+            return output.toString();
         }
-        return output.toString();
-    }
 
-    @FXML
+
+        @FXML
     private void checkCode(ActionEvent event) {
         try {
             generateTask.setDisable(false);

@@ -59,20 +59,16 @@ public class LoginController {
     @FXML
     public void openRegisterDialog(MouseEvent event) {
         try {
-            // Закрываем первое окно
             Stage currentStage = (Stage) regtext.getScene().getWindow();
-            currentStage.close();  // Закрываем текущее окно
+            currentStage.close();
 
-            // Загружаем FXML для второго окна
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/reg.fxml"));
             Parent root = loader.load();
 
-            // Создаем второе окно (Stage)
             Stage secondDialogStage = new Stage();
             secondDialogStage.setTitle("Реєстрація");
             secondDialogStage.setScene(new Scene(root));
 
-            // Настроим окно как модальное
             secondDialogStage.initModality(Modality.APPLICATION_MODAL);
             secondDialogStage.show();
 

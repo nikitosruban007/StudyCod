@@ -50,10 +50,8 @@ public class GradesSceneController {
             throw new RuntimeException(e);
         }
 
-        // Передача primaryStage в контролер головної сцени
         HomeSceneController homeController = loader.getController();
-        homeController.setPrimaryStage(primaryStage);  // передаємо primaryStage в контролер головної сцени
-
+        homeController.setPrimaryStage(primaryStage);
         Scene scene = new Scene(root);
         primaryStage.setScene(scene);
     }
@@ -97,12 +95,10 @@ public class GradesSceneController {
         taskNameColumn.setReorderable(false);
         gradeColumn.setReorderable(false);
         commentsColumn.setReorderable(false);
-        // Устанавливаем значения для колонок
         taskNameColumn.setCellValueFactory(new PropertyValueFactory<>("taskName"));
         gradeColumn.setCellValueFactory(new PropertyValueFactory<>("grade"));
         commentsColumn.setCellValueFactory(new PropertyValueFactory<>("comments"));
 
-        // Загружаем данные из базы данных для текущего пользователя
         loadTaskDetails();
     }
 

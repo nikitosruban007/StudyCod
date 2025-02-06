@@ -43,7 +43,7 @@ import java.util.*;
 public class StudyCod extends Application {
 
     private static final String API_URL = "https://openrouter.ai/api/v1/chat/completions";
-    private static final String API_KEY = "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";
+    private static final String API_KEY = "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";
 
     private static final String DB_URL = "jdbc:mysql://109.94.209.168:3306/man?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8";
 
@@ -379,7 +379,7 @@ public class StudyCod extends Application {
             HttpClient client = HttpClient.newHttpClient();
 
             String jsonBody = String.format(
-                    "{\"model\": \"google/gemini-2.0-flash-lite-preview-02-05:free\", \"prompt\": \"УВАГА!!! МОВА ПРОГРАМУВАННЯ - JAVA!!!! БЕЗ ФОРМАТУВАННЯ!!!!! НАВІТЬ КОД ЯК ЗВИЧАЙНИЙ ТЕКСТ ПРОСТО З ТАБАМИ!!!!!  Згенеруй завдання для учня на мові програмування Java, просто текст завдання, без форматування без нічого тільки текст і коротко, і ще орієнтуйся на КСЗ (коефіцієт складності завдань), де 0 - це взагалі початківець (прості задачі), 1 - це бог програмування (найскладніші завдання), КСЗ: %.1f, а ще тримай пройдені теми, щоби ти не повторювався: %s , та орієнтуйся на них, не давай того чого користувач на зараз не зрозуміє\", \"max_tokens\": 1000}",
+                    "{\"model\": \"google/gemini-2.0-flash-lite-preview-02-05:free\", \"prompt\": \"УВАГА!!! ТІЛЬКИ НЕ SCANNER, ЙОГО ПОКИ НЕ МОЖНА!!!!!!! МОВА ПРОГРАМУВАННЯ - JAVA!!!! БЕЗ ФОРМАТУВАННЯ!!!!! НАВІТЬ КОД ЯК ЗВИЧАЙНИЙ ТЕКСТ ПРОСТО З ТАБАМИ!!!!!  Згенеруй практичне завдання для учня на мові програмування Java, просто текст завдання, без форматування без нічого тільки текст і коротко, і ще орієнтуйся на КСЗ (коефіцієт складності завдань), де 0 - це взагалі початківець (прості задачі), тобто користувач тільки починає знайомство з джавою, 1 - це бог програмування (найскладніші завдання), КСЗ: %.1f, а ще тримай пройдені теми, щоби ти не повторювався: %s , та орієнтуйся на них, не давай того чого користувач на зараз не зрозуміє\", \"max_tokens\": 1000}",
                     difus,
                     topics
             );
@@ -501,7 +501,7 @@ public class StudyCod extends Application {
             System.out.println("Response Status Code: " + response.statusCode());
 
             System.out.println("Response Body: " + response.body());
-
+            System.out.println(processResponse(response));
             return processResponse(response);
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
@@ -590,6 +590,7 @@ public class StudyCod extends Application {
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() == 200) {
+                System.out.println(response.body());
                 return response.body();
             } else {
                 return "Статус: " + response.statusCode() + ", Тіло: " + response.body();

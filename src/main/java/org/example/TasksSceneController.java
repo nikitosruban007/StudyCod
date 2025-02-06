@@ -368,8 +368,6 @@ public class TasksSceneController {
             }
             return output.toString();
         }
-
-
         @FXML
     private void checkCode(ActionEvent event) {
         try {
@@ -380,9 +378,13 @@ public class TasksSceneController {
             String codeText = codeEditor.getText();
             String taskText = currentTaskText;
             int grade1 = StudyCod.transformTexttoJSON(studyCod.GradeforI(codeText, taskText).trim());
+            System.out.println(grade1);
             int grade2 = StudyCod.transformTexttoJSON(studyCod.GradeforII(codeText, taskText).trim());
+            System.out.println(grade2);
             int grade3 = StudyCod.transformTexttoJSON(studyCod.GradeforIII(codeText, taskText).trim());
+            System.out.println(grade3);
             int grade = grade1 + grade2 + grade3;
+            System.out.println(grade);
             String task = "Завдання №" + StudyCod.getTaskNum();
             String comment = studyCod.Comment(codeText, taskText, grade1, grade2, grade3, grade);
             String result = "Оцінка: " + grade + "\n" + "Коментар: " + comment;

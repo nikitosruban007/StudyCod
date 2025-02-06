@@ -202,23 +202,12 @@ public class StudyCod extends Application {
                     }
                 }
 
-                try (PreparedStatement stmt = connection.prepareStatement("INSERT INTO users (username, password) VALUES (?, ?)",
+                try (PreparedStatement stmt = connection.prepareStatement("INSERT INTO users (username, password, difus) VALUES (?, ?, ?)",
                         PreparedStatement.RETURN_GENERATED_KEYS)) {
                     stmt.setString(1, username);
                     stmt.setString(2, password);
+                    stmt.setInt(3, 0);
                     stmt.executeUpdate();
-
-                    try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
-                        if (generatedKeys.next()) {
-                            int userId = generatedKeys.getInt(1);
-
-                            try (PreparedStatement stmtDifus = connection.prepareStatement("INSERT INTO difus (user_id, difficult) VALUES (?, ?)")) {
-                                stmtDifus.setInt(1, userId);
-                                stmtDifus.setInt(2, 0);
-                                stmtDifus.executeUpdate();
-                            }
-                        }
-                    }
                 }
 
                 authenticateUser(username, password);
@@ -482,10 +471,23 @@ public class StudyCod extends Application {
             HttpClient client = HttpClient.newHttpClient();
 
             String jsonBody = String.format(
-                    "{\"model\": \"google/gemini-2.0-flash-lite-preview-02-05:free\", \"prompt\": \"УВАГА!!! МОВА ПРОГРАМУВАННЯ - JAVA!!!! БЕЗ ФОРМАТУВАННЯ!!!!! БЕЗ ТОЧОК, ПРОСТО МОНОТОННИЙ ТЕКСТ!!!!! БУДЬ ЛАСКА!!!!! НАВІТЬ КОД ЯК ЗВИЧАЙНИЙ ТЕКСТ ПРОСТО З ТАБАМИ!!!!! Згенеруй урок для завдання та теми, який буде викладений як розповідна історія з цікавими прикладами. Урок має бути написаний як послідовна лекція, що пояснює тему зрозуміло, з живими прикладами, ілюструє як застосовувати концепції на практиці, а не просто перелічує факти чи інструкції. Ось завдання: %s, та тема: %s\", \"max_tokens\": 10000}",
-                    escapeJson(task),
-                    escapeJson(topic)
+                    "{\"model\": \"google/gemini-2.0-flash-lite-preview-02-05:free\", " +
+                            "\"prompt\": \"УВАГА!!! ВСІ ВІДСТУПИ У ВІДПОВІДІ ЛИШЕ ПРОБІЛАМИ, ЖОДНОГО ФОРМАТУВАННЯ!!!! " +
+                            "УСЕ ПОВИННО БУТИ ОДНИМ МОНОЛІТНИМ ТЕКСТОМ, НАВІТЬ КОД ПИШИ ЯК ПРОСТИЙ ТЕКСТ!!!!! " +
+                            "БЕЗ КРАПКОК, БЕЗ МАРКЕРІВ, БЕЗ СПИСКІВ, БЕЗ РОЗРИВІВ РЯДКІВ!!!!! " +
+                            "НАВІТЬ ЯКЩО ЦЕ КОД, ПРОСТО ПИШИ ЙОГО ЯК ЗВИЧАЙНИЙ ТЕКСТ, ЗАЛИШАЮЧИ ВІДСТУПИ ПРОБІЛАМИ " +
+                            "НА ПОЧАТКУ РЯДКІВ ДЛЯ ВІЗУАЛЬНОЇ ІЄРАРХІЇ!!!!! " +
+                            "Створи лекцію за темою: %s, яка пояснює все доступно, без формального сухого тексту, " +
+                            "а як цікава розповідь, сповнена живих реальних прикладів та пояснень, " +
+                            "як застосовувати знання на практиці. " +
+                            "ПОКАЗУЙ ПРАКТИЧНЕ ЗАСТОСУВАННЯ ЧЕРЕЗ КОНКРЕТНІ ПРИКЛАДИ КОДУ!!!!! " +
+                            "НІКОЛИ НЕ ВИКОРИСТОВУЙ HTML-ТЕГИ!!!!! НЕ ФОРМАТУЙ НІЧОГО!!!!! " +
+                            "ПИШИ ПРОСТО МОНОЛІТНИЙ ТЕКСТ!!!! орієнтуйся також за завданням: %s\", " +
+                            "\"max_tokens\": 10000}",
+                    escapeJson(topic),
+                    escapeJson(task)
             );
+
 
             System.out.println("JSON Body: " + jsonBody);
 

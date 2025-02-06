@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="336.0" prefWidth="290.0" stylesheets="@styles/TaskScenes.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.ProfileController">
+    <ImageView fx:id="imageView" fitHeight="14.0" fitWidth="14.0" layoutX="269.0" layoutY="7.0" onMouseClicked="#closeDialog">
+        <image>
+            <Image url="@closing.png" />
+        </image>
+    </ImageView>
+    <Label layoutX="91.0" layoutY="19.0" text="Профіль">
+        <font>
+            <Font name="Arial" size="22.0" />
+        </font></Label>
+    <Label layoutX="26.0" layoutY="67.0" prefHeight="37.0" prefWidth="98.0" text="Юзернейм:">
+        <font>
+            <Font name="Arial" size="14.0" />
+        </font></Label>
+    <Label fx:id="username" layoutX="117.0" layoutY="67.0" prefHeight="37.0" prefWidth="167.0">
+        <font>
+            <Font name="Arial" size="14.0" />
+        </font></Label>
+    <Label layoutX="26.0" layoutY="104.0" text="ID:">
+        <font>
+            <Font name="Arial" size="14.0" />
+        </font></Label>
+    <Label fx:id="id" layoutX="65.0" layoutY="104.0" prefHeight="37.0" prefWidth="217.0">
+        <font>
+            <Font name="Arial" size="14.0" />
+        </font></Label>
+    <Label layoutX="26.0" layoutY="141.0" text="КСЗ:">
+        <font>
+            <Font name="Arial" size="14.0" />
+        </font></Label>
+    <Label fx:id="kcz" layoutX="80.0" layoutY="141.0" prefHeight="38.0" prefWidth="78.0">
+        <font>
+            <Font name="Arial" size="14.0" />
+        </font></Label>
+    <Button layoutX="58.0" layoutY="235.0" onAction="#exit" prefHeight="50.0" prefWidth="174.0" text="Вийти з ак    аунту">
+        <font>
+            <Font name="Arial" size="12.0" />
+        </font></Button>
+
+</AnchorPane>

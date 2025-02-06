@@ -1,0 +1,27 @@
+/* Изменение фона для BorderPane */
+.root {
+    -fx-background-color: #1c1c1c; /* Светло-голубой цвет */
+}
+
+.label {
+    -fx-text-fill: #eeeeee;
+    -fx-padding: 10;
+    -fx-font-family: "JetBrains Mono";
+}
+
+.button {
+    -fx-background-color: #333333;
+    -fx-font-family: "JetBrains Mono";
+    -fx-text-fill: #eeeeee;
+    -fx-font-size: 25px;
+    -fx-padding: 10 20;
+    -fx-border-color: #3cb371;
+    -fx-border-width: 2px;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+}
+
+.button:hover {
+    -fx-background-color: #3cb371;
+    -fx-text-fill: #000000;
+}

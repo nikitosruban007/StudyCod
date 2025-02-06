@@ -1,0 +1,55 @@
+@font-face {
+    font-family: 'JetBrains Mono';
+    src: url('../JetBrainsMono-Regular.ttf');
+}
+@font-face {
+    font-family: 'JetBrains Mono Bold';
+    src: url('../JetBrainsMono-ExtraBold.ttf');
+}
+.root {
+    -fx-background-color: #1e1e1e;
+}
+
+.label {
+    -fx-text-fill: #66cdaa;
+    -fx-padding: 10;
+}
+
+.text-area {
+    -fx-background-color: #333333;
+    -fx-font-family: "JetBrains Mono";
+    -fx-font-size: 14px;
+    -fx-padding: 10;
+}
+
+.label-text {
+    -fx-font-family: "JetBrains Mono";
+}
+
+.label-main {
+    -fx-font-family: "JetBrains Mono Bold";
+    -fx-font-weight: bold;
+    -fx-font-size: 50px;
+}
+
+.button {
+    -fx-background-color: #444444;
+    -fx-font-family: "JetBrains Mono";
+    -fx-font-size: 16px;
+    -fx-text-fill: #eeeeee;
+    -fx-padding: 10 20;
+    -fx-border-color: #3cb371;
+    -fx-border-width: 2px;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+}
+
+.button:hover {
+    -fx-background-color: #3cb371;
+    -fx-text-fill: #000000;
+}
+
+.list-view {
+    -fx-background-color: #2e2e2e;
+    -fx-text-fill: #eeeeee;
+}

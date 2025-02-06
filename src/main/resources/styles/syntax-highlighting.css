@@ -1,0 +1,32 @@
+@font-face {
+    font-family: 'JetBrains Mono';
+    src: url('../JetBrainsMono-Regular.ttf');
+}
+* {
+    -fx-font-family: 'JetBrains Mono';
+}
+.keyword {
+    -fx-fill: #d73a49; /* Червоний для ключових слів */
+    -fx-font-weight: bold;
+}
+
+.string {
+    -fx-fill: #032f62; /* Синій для рядків */
+}
+
+.comment {
+    -fx-fill: #6a737d; /* Сірий для коментарів */
+    -fx-font-style: italic;
+}
+
+.paren, .brace, .bracket {
+    -fx-fill: #005cc5; /* Синій для дужок */
+}
+
+.default {
+    -fx-fill: #24292e; /* Стандартний колір тексту */
+}
+
+.semicolon {
+    -fx-fill: #e36209; /* Помаранчевий для крапок із комою */
+}

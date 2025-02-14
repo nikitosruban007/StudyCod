@@ -37,10 +37,13 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TasksSceneController {
+    @FXML private TextArea question;
+    @FXML private TextArea answer;
     @FXML private Button launchcode;
     @FXML private Button checkTask;
     @FXML private ListView<String> taskListView;
@@ -60,7 +63,6 @@ public class TasksSceneController {
     private static final String DB_PASSWORD = "Nikitos121109";
     private static String currentTaskText = null;
 
-    // Зберігаємо поточний процес, щоб мати доступ до його стандартного вводу
     private Process currentProcess = null;
 
     private static final String KEYWORD_PATTERN = "\\b(abstract|assert|boolean|break|byte|case|catch|char|class|const|continue|default|do|double|else|enum|extends|final|finally|float|for|goto|if|implements|import|instanceof|int|interface|long|native|new|null|package|private|protected|public|return|short|static|strictfp|super|switch|synchronized|this|throw|throws|transient|try|void|volatile|while)\\b";
@@ -277,6 +279,20 @@ public class TasksSceneController {
         }
     }
 
+
+    @FXML
+    private void startTest(){
+        for (int i = 0; i < 5; i++) {
+            Random random = new Random();
+            String[] topics = StudyCod.getTopicsFromDB(StudyCod.getId()).split(" ");
+            String[] text = StudyCod.generateVarTask(topics[random.nextInt(topics.length)]);
+            question.setText(text[0]);
+
+
+
+        }
+    }
+
     @FXML
     private void markLessonAsRead() {
         lessonContent.setVisible(false);
@@ -368,7 +384,7 @@ public class TasksSceneController {
             }
             return output.toString();
         }
-        @FXML
+    @FXML
     private void checkCode(ActionEvent event) {
         try {
             generateTask.setDisable(false);

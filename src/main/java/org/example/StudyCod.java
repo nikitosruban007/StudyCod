@@ -368,7 +368,7 @@ public class StudyCod extends Application {
             HttpClient client = HttpClient.newHttpClient();
 
             String jsonBody = String.format(
-                    "{\"model\": \"google/gemini-2.0-flash-lite-preview-02-05:free\", \"prompt\": \"УВАГА!!! КОЛИ ТИ ПРОСИШ ЩОСЬ ВИВЕСТИ НАПРИКЛАД ПРИВІТ СВІТ, ТО ПРОСИ НА АНГЛІЙСЬКІЙ МОВІ ТОБТО НАПРИКЛАД HELLO WORLD!!!!!!! МОВА ПРОГРАМУВАННЯ - JAVA!!!! БЕЗ ФОРМАТУВАННЯ!!!!! НАВІТЬ КОД ЯК ЗВИЧАЙНИЙ ТЕКСТ ПРОСТО З ТАБАМИ!!!!!  Згенеруй практичне завдання для учня на мові програмування Java, просто текст завдання, без форматування без нічого тільки текст і коротко, і ще орієнтуйся на КСЗ (коефіцієт складності завдань), де 0 - це взагалі початківець (прості задачі), тобто користувач тільки починає знайомство з джавою, 1 - це бог програмування (найскладніші завдання), КСЗ: %.1f, а ще тримай пройдені теми, щоби ти не повторювався: %s , та орієнтуйся на них, не давай того чого користувач на зараз не зрозуміє\", \"max_tokens\": 1000}",
+                    "{\"model\": \"google/gemini-2.0-flash-lite-preview-02-05:free\", \"prompt\": \"УВАГА!!! КОЛИ ТИ ПРОСИШ ЩОСЬ ВИВЕСТИ НАПРИКЛАД ПРИВІТ СВІТ, ТО ПРОСИ НА АНГЛІЙСЬКІЙ МОВІ ТОБТО НАПРИКЛАД HELLO WORLD!!!!!!! МОВА ПРОГРАМУВАННЯ - JAVA!!!! БЕЗ ФОРМАТУВАННЯ!!!!! НАВІТЬ КОД ЯК ЗВИЧАЙНИЙ ТЕКСТ ПРОСТО З ТАБАМИ!!!!!  Згенеруй практичне завдання для учня на мові програмування Java, просто текст завдання, без форматування без нічого тільки текст і коротко, і ще орієнтуйся на КСЗ (коефіцієт складності завдань), де 0 - це взагалі початківець (прості задачі), тобто користувач тільки починає знайомство з джавою, 1 - це бог програмування (найскладніші завдання), КСЗ: %.1f, а ще тримай пройдені теми, щоби ти не повторювався: %s , та орієнтуйся на них, не давай того чого користувач на зараз не зрозуміє, і завдання з scanner і подібним вводом, давай від КЗС - 0.5 ЦЕ ОБОВ'ЯЗКОВ    О\", \"max_tokens\": 1000}",
                     difus,
                     topics
             );
@@ -391,11 +391,9 @@ public class StudyCod extends Application {
         try {
             HttpClient client = HttpClient.newHttpClient();
 
-            String topicsString = String.join(", ", topics);
-
             String jsonBody = String.format(
                     "{\"model\": \"google/gemini-2.0-flash-lite-preview-02-05:free\", " +
-                            "\"prompt\": \"УВАГА!!! МОВА ПРОГРАМУВАННЯ - JAVA!!!! БЕЗ ФОРМАТУВАННЯ!!!!! КОЛИ ТИ ПРОСИШ ЩОСЬ ВИВЕСТИ НАПРИКЛАД ПРИВІТ СВІТ, ТО ПРОСИ НА АНГЛІЙСЬКІЙ МОВІ ТОБТО НАПРИКЛАД HELLO WORLD!!!!!!! НАВІТЬ КОД ЯК ЗВИЧАЙНИЙ ТЕКСТ ПРОСТО З ТАБАМИ!!!!!  Згенеруй завдання контролю знань для учня на мові програмування Java за темами: %s, " +
+                            "\"prompt\": \"УВАГА!!! МОВА ПРОГРАМУВАННЯ - JAVA!!!! БЕЗ ФОРМАТУВАННЯ!!!!! КОЛИ ТИ ПРОСИШ ЩОСЬ ВИВЕСТИ НАПРИКЛАД ПРИВІТ СВІТ, ТО ПРОСИ НА АНГЛІЙСЬКІЙ МОВІ ТОБТО НАПРИКЛАД HELLO WORLD, АЛЕ ПОСТАНОВКА УМОВИ НА УКР(ТОБТО НАПРИКЛАД ВИВЕДИ ЗМІННУ int number = 7 )!!!!!!! НАВІТЬ КОД ЯК ЗВИЧАЙНИЙ ТЕКСТ ПРОСТО З ТАБАМИ!!!!!  Згенеруй завдання контролю знань для учня на мові програмування Java за темами: %s, " +
                             "просто текст завдання, без форматування без нічого тільки текст і коротко, і ще орієнтуйся на КСЗ " +
                             "(коефіцієнт складності завдань), де 0 - це взагалі початківець, 1 - це бог програмування, КСЗ: %.1f\", " +
                             "\"max_tokens\": 10000}",
@@ -413,6 +411,64 @@ public class StudyCod extends Application {
             return processResponse(response);
         } catch (Exception e) {
             return "Помилка: " + e.getMessage();
+        }
+    }
+
+
+    public static String[] generateVarTask(String topic) {
+        try {
+            HttpClient client = HttpClient.newHttpClient();
+
+            String jsonBody = String.format(
+                    "{\"model\": \"google/gemini-2.0-flash-lite-preview-02-05:free\", " +
+                            "\"prompt\": \"УВАГА!!! МОВА ПРОГРАМУВАННЯ - JAVA!!!! БЕЗ ФОРМАТУВАННЯ!!!!! КОЛИ ТИ ПРОСИШ ЩОСЬ ВИВЕСТИ НАПРИКЛАД ПРИВІТ СВІТ, ТО ПРОСИ НА АНГЛІЙСЬКІЙ МОВІ ТОБТО НАПРИКЛАД HELLO WORLD!!!!!!! НАВІТЬ КОД ЯК ЗВИЧАЙНИЙ ТЕКСТ ПРОСТО З ТАБАМИ!!!!!  Згенеруй завдання для питання з варіантами відповідей за темою: %s, " +
+                            "Формат: Завдання Варіант1 Варіант2 Варіант2 Варіант3 Варіант4" +
+                            "4 варіанти, один правильний, варіанти через пробіл\", " +
+                            "\"max_tokens\": 10000}",
+                    topic
+            );
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(API_URL))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + API_KEY)
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            String[] text = response.body().split(" ");
+            return text;
+        } catch (Exception e) {
+            String[] er = new String[0];
+            return er;
+        }
+    }
+
+
+    public static String generateEntTask(String topic) {
+        try {
+            HttpClient client = HttpClient.newHttpClient();
+
+            String jsonBody = String.format(
+                    "{\"model\": \"google/gemini-2.0-flash-lite-preview-02-05:free\", " +
+                            "\"prompt\": \"УВАГА!!! МОВА ПРОГРАМУВАННЯ - JAVA!!!! БЕЗ ФОРМАТУВАННЯ!!!!! КОЛИ ТИ ПРОСИШ ЩОСЬ ВИВЕСТИ НАПРИКЛАД ПРИВІТ СВІТ, ТО ПРОСИ НА АНГЛІЙСЬКІЙ МОВІ ТОБТО НАПРИКЛАД HELLO WORLD!!!!!!! НАВІТЬ КОД ЯК ЗВИЧАЙНИЙ ТЕКСТ ПРОСТО З ТАБАМИ!!!!!  Згенеруй завдання для питання з введенням відповіді за темою: %s, " +
+                            "Формат: Завдання\n" +
+                            "4 варіанти, один правильний, варіанти через пробіл\", " +
+                            "\"max_tokens\": 10000}",
+                    topic
+            );
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(API_URL))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + API_KEY)
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            return response.body();
+        } catch (Exception e) {
+            return "null";
         }
     }
 

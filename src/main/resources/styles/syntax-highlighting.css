@@ -1,0 +1,45 @@
+@font-face {
+    font-family: 'JetBrains Mono';
+    src: url('../JetBrainsMono-Regular.ttf');
+}
+
+.code-editor {
+    -fx-font-family: 'JetBrains Mono';
+    -fx-font-size: 14px;
+    -fx-text-fill: #eeeeee;
+}
+
+.keyword {
+    -fx-fill: #d73a49;
+    -fx-font-weight: bold;
+}
+
+.string {
+    -fx-fill: #032f62;
+}
+
+.comment {
+    -fx-fill: #6a737d;
+    -fx-font-style: italic;
+}
+
+.paren, .brace, .bracket {
+    -fx-fill: #005cc5;
+}
+
+.default {
+    -fx-fill: #eeeeee;
+}
+
+.semicolon {
+    -fx-fill: #e36209;
+}
+
+.lineno {
+    -fx-background-color: #2e2e2e;
+    -fx-text-fill: #66cdaa;
+    -fx-border-color: #3cb371;
+    -fx-border-width: 0 1px 0 0;
+    -fx-padding: 0 5 0 5;
+    -fx-font-family: 'JetBrains Mono';
+}

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="336.0" prefWidth="290.0" styleClass="dialog-root" stylesheets="@styles/TaskScenes.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.fx.controllers.LoginController">
+    <ImageView fx:id="imageView" fitHeight="14.0" fitWidth="14.0" layoutX="269.0" layoutY="7.0" onMouseClicked="#closeDialog" styleClass="close-button">
+        <image>
+            <Image url="@closing.png" />
+        </image>
+    </ImageView>
+    <Label layoutX="72.0" layoutY="14.0" text="Авторизація" styleClass="dialog-title">
+        <font>
+            <Font name="JetBrains Mono Bold" size="22.0" />
+        </font>
+    </Label>
+    <Label layoutX="53.0" layoutY="49.0" prefHeight="30.0" prefWidth="73.0" text="Логін" styleClass="input-label">
+        <font>
+            <Font name="JetBrains Mono" size="14.0" />
+        </font>
+    </Label>
+    <TextField fx:id="login" layoutX="62.0" layoutY="75.0" prefHeight="38.0" prefWidth="166.0" styleClass="text-input" />
+    <Label layoutX="55.0" layoutY="120.0" text="Пароль" styleClass="input-label">
+        <font>
+            <Font name="JetBrains Mono" size="14.0" />
+        </font>
+    </Label>
+    <PasswordField fx:id="password" layoutX="61.0" layoutY="148.0" prefHeight="38.0" prefWidth="166.0" styleClass="text-input" />
+    <Button layoutX="86.0" layoutY="195.0" onAction="#loginUser" prefHeight="50.0" prefWidth="118.0" text="Увійти" styleClass="primary-button">
+        <font>
+            <Font name="JetBrains Mono" size="12.0" />
+        </font>
+    </Button>
+    <Label fx:id="regtext" layoutX="90.0" layoutY="245.0" onMouseClicked="#openRegisterDialog" text="Нема аккаунту?" styleClass="link-label">
+        <font>
+            <Font name="JetBrains Mono" size="12.0" />
+        </font>
+    </Label>
+    <Label fx:id="correctly" layoutX="45.0" layoutY="281.0" text="Не правильний логін чи пароль!" textFill="#dc0000" visible="false" styleClass="error-text">
+        <font>
+            <Font name="JetBrains Mono" size="12.0" />
+        </font>
+    </Label>
+</AnchorPane>

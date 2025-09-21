@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+
+<?import org.fxmisc.richtext.CodeArea?>
+<BorderPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.fx.controllers.TasksSceneController">
+    <bottom>
+        <AnchorPane prefHeight="1080.0" prefWidth="1866.0" styleClass="root" stylesheets="@styles/TaskScenes.css" BorderPane.alignment="CENTER">
+            <Label layoutX="43.0" layoutY="40.0" styleClass="main-title" text="Завдання" />
+            <Button layoutX="71.0" layoutY="1008.0" onAction="#goBack" text="Назад" styleClass="nav-button" />
+            <Button fx:id="generateTask" layoutX="231.0" layoutY="1008.0" onAction="#generateTask" text="Нове завдання" styleClass="action-button" />
+            <ListView fx:id="taskListView" layoutX="34.0" layoutY="101.0" prefHeight="890.0" prefWidth="438.0" styleClass="task-list" />
+            <TextArea fx:id="taskDescription" editable="false" layoutX="542.0" layoutY="98.0" prefHeight="201.0" prefWidth="1295.0" styleClass="task-description" />
+            <CodeArea fx:id="codeEditor" layoutX="542.0" layoutY="299.0" prefHeight="602.0" prefWidth="1296.0" styleClass="code-editor" />
+            <TextArea fx:id="consoleOutput" editable="false" layoutX="542.0" layoutY="905.0" prefHeight="142.0" prefWidth="940.0" styleClass="console-output" />
+            <Button fx:id="checkTask" layoutX="1640.0" layoutY="936.0" onAction="#checkCode" text="Перевірити" styleClass="action-button" />
+            <Button fx:id="launchcode" layoutX="1497.0" layoutY="936.0" onAction="#runCode" text="Запустити" styleClass="action-button" />
+            <TextArea fx:id="lessonContent" editable="false" layoutX="541.0" layoutY="98.0" prefHeight="948.0" prefWidth="1296.0" styleClass="lesson-content" visible="false" />
+            <Button fx:id="lessonRead" layoutX="1668.0" layoutY="968.0" onAction="#markLessonAsRead" text="Я прочитав" styleClass="action-button" visible="false" />
+        </AnchorPane>
+    </bottom>
+</BorderPane>

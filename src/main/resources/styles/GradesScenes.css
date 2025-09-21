@@ -1,0 +1,68 @@
+@font-face {
+    font-family: 'JetBrains Mono';
+    src: url('../JetBrainsMono-Regular.ttf');
+}
+@font-face {
+    font-family: 'JetBrains Mono Bold';
+    src: url('../JetBrainsMono-ExtraBold.ttf');
+}
+
+.root {
+    -fx-background-color: #1e1e1e;
+}
+
+.main-title {
+    -fx-font-family: "JetBrains Mono Bold";
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #66cdaa;
+}
+
+.nav-button {
+    -fx-background-color: #444444;
+    -fx-text-fill: #eeeeee;
+    -fx-font-family: "JetBrains Mono";
+    -fx-font-size: 14px;
+    -fx-background-radius: 5;
+    -fx-border-radius: 5;
+    -fx-padding: 10 20;
+    -fx-border-color: #3cb371;
+    -fx-border-width: 2px;
+}
+
+.nav-button:hover {
+    -fx-background-color: #3cb371;
+    -fx-text-fill: #000000;
+}
+
+.grades-table {
+    -fx-background-color: #333333;
+    -fx-border-color: #3cb371;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-font-family: "JetBrains Mono";
+    -fx-effect: dropshadow(gaussian, rgba(60,179,113,0.3), 10, 0, 0, 5);
+}
+
+.grades-table .column-header {
+    -fx-background-color: #444444;
+    -fx-text-fill: #eeeeee;
+    -fx-font-family: "JetBrains Mono";
+    -fx-font-weight: bold;
+}
+
+.grades-table .table-cell {
+    -fx-font-family: "JetBrains Mono";
+    -fx-text-fill: #eeeeee;
+    -fx-padding: 10;
+    -fx-background-color: #333333;
+}
+
+.grades-table .table-row-cell:even {
+    -fx-background-color: #2e2e2e;
+}
+
+.grades-table .table-row-cell:selected {
+    -fx-background-color: #3cb371;
+    -fx-text-fill: #000000;
+}

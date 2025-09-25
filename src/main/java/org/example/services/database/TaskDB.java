@@ -9,24 +9,26 @@ import lombok.Data;
 public class TaskDB {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "task_id")
     private Long taskId;
 
-    @Column(name = "userId", nullable = false)
+    @Column(name = "lang", nullable = false)
+    private String lang;
+
+    @Column(name = "user_id", nullable = false)
     private Integer userId;
 
     @Column(name = "description", nullable = false)
     private String description;
 
-    @Column(name = "template", nullable = false)
-    private String template;
-
-    @Column(name = "taskName", nullable = false)
+    @Column(name = "task_name", nullable = false)
     private String taskName;
 
-    @Column(name = "finishCode")
+    @Column(name = "finish_code")
     private String finishCode;
 
-    @Column(name = "comments")
+    @Lob
+    @Column(name = "comments", columnDefinition = "LONGTEXT")
     private String comments;
 
     @Column(name = "completed", nullable = false)

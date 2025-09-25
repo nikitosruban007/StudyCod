@@ -12,7 +12,7 @@ import lombok.Data;
 public class UsTaskDB {
 
     @Id
-    @Column(name = "userId", nullable = false)
+    @Column(name = "user_id", nullable = false)
     private Integer userId;
 
     @Column(name = "num", nullable = false)

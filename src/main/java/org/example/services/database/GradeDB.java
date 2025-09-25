@@ -11,11 +11,14 @@ public class GradeDB {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "userId", nullable = false)
+    @Column(name = "user_id", nullable = false)
     private Integer userId;
 
-    @Column(name = "taskName", nullable = false)
-    private String task_name;
+    @Column(name = "task_name", nullable = false)
+    private String taskName;
+
+    @Column(name = "lang", nullable = false)
+    private String lang;
 
     @Column(name = "grade", nullable = false)
     private int grade;

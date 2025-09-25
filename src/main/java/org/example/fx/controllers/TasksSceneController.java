@@ -11,10 +11,13 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import org.example.AutoComplete;
+import org.example.ParameterHints;
 import org.example.StudyCod;
 import org.example.User;
+import org.example.services.CoursePlan;
 import org.example.services.GradeManager;
 import org.example.services.TaskManager;
+import org.example.services.ai.AiRequest;
 import org.example.services.database.UsTaskDB;
 import org.example.services.database.UserDB;
 import org.example.services.repo.UsTaskI;
@@ -27,6 +30,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -66,6 +71,9 @@ public class TasksSceneController {
     @Autowired
     private TaskManager taskManager;
 
+    @Autowired
+    private CoursePlan coursePlan;
+
     private static final String KEYWORD_PATTERN = "\\b(abstract|assert|boolean|break|byte|case|catch|char|class|const|" +
             "continue|default|do|double|else|enum|extends|final|finally|float|for|goto|if|implements|import|instanceof|" +
             "int|interface|long|native|new|null|package|private|protected|public|return|short|static|strictfp|super|" +
@@ -93,7 +101,8 @@ public class TasksSceneController {
 
     public void populateListView(int userId) {
         if (User.user().isAuthorized()) {
-            List<String> data = taskManager.getTaskByUserId(userId);
+            String lang = userI.findById(User.user().getId()).map(UserDB::getLang).orElse("Java");
+            List<String> data = taskManager.getTaskByUserId(userId, lang);
             ObservableList<String> observableData = FXCollections.observableArrayList(data);
             taskListView.setItems(observableData);
         }
@@ -129,6 +138,13 @@ public class TasksSceneController {
         if (User.user().isAuthorized()) {
             codeEditor.getStylesheets().add(getClass().getResource("/styles/syntax-highlighting.css").toExternalForm());
             AutoComplete.setupAutoCompletion(codeEditor);
+            ParameterHints.attach(codeEditor);
+
+            // Ensure lesson and task text are black on white regardless of external CSS
+            taskDescription.setStyle("-fx-text-fill: black; -fx-control-inner-background: white;");
+            lessonContent.setStyle("-fx-text-fill: black; -fx-control-inner-background: white;");
+            consoleOutput.setStyle("-fx-text-fill: black; -fx-control-inner-background: white;");
+
             populateListView(Math.toIntExact(User.user().getId()));
             launchcode.setDisable(true);
             checkTask.setDisable(true);
@@ -178,39 +194,38 @@ public class TasksSceneController {
             usTaskI.save(usTask);
         }
 
-        // Создаем effectively final копию переменной для использования в лямбде
         final UsTaskDB finalUsTask = usTask;
 
         new Thread(() -> {
             try {
-                if ((finalUsTask.getNum() / finalUsTask.getControlNum()) % 26 != 1) {
-                    String task = taskManager.generateUniqueTask(User.user().getDifus());
-                    String template = StudyCod.generateCodeTemplate(task);
-                    currentTopic = StudyCod.generateTopic(task);
-                    userDb.setTopics(userDb.getTopics() + currentTopic + ", ");
-                    userI.save(userDb); // сохраняем изменения
-                    currentLesson = StudyCod.generateLesson(task, currentTopic);
-                    loadLesson(currentLesson, currentTopic);
-                    currentTaskText = task;
-                    Platform.runLater(() -> {
-                        taskListView.getItems().add("Завдання №" + finalUsTask.getNum());
-                        taskDescription.setText(task);
-                        codeEditor.replaceText(template);
-                        taskManager.saveTaskToDB(task, template);
-                    });
-                } else {
-                    String task = taskManager.generateControlTask(User.user().getDifus(), userDb.getTopics());
-                    String template = StudyCod.generateCodeTemplate(task);
-                    currentLesson = "Контроль знань за темами: " + userDb.getTopics();
-                    currentTaskText = task;
-                    loadLesson(currentLesson, "Контроль знань №" + finalUsTask.getControlNum());
-                    Platform.runLater(() -> {
-                        taskListView.getItems().add("Контроль знань №" + finalUsTask.getControlNum());
-                        taskDescription.setText(task);
-                        codeEditor.replaceText(template);
-                        taskManager.saveTaskToDB(task, template);
-                    });
+                String lang = userDb.getLang() != null ? userDb.getLang() : "Java";
+                int nextLessonIndex = finalUsTask.getNum();
+                int nextCheckIndex = finalUsTask.getControlNum();
+                CoursePlan.PlanResult plan = coursePlan.nextFor(lang, nextLessonIndex, nextCheckIndex);
+
+                currentTopic = plan.topic;
+                currentLesson = CoursePlan.lessonText(lang, currentTopic);
+                currentTaskText = plan.task;
+
+                if (!plan.knowledgeCheck && currentTopic != null) {
+                    String topics = userDb.getTopics() == null ? "" : userDb.getTopics();
+                    userDb.setTopics(topics + currentTopic + ", ");
+                    userI.save(userDb);
                 }
+
+                loadLesson(currentLesson, plan.knowledgeCheck ? ("Контроль знань №" + nextCheckIndex) : currentTopic);
+
+                String listItemTitle = plan.knowledgeCheck ? ("Контроль знань №" + nextCheckIndex) : ("Завдання №" + nextLessonIndex);
+
+                Platform.runLater(() -> {
+                    taskListView.getItems().add(listItemTitle);
+                    taskDescription.setText("Завдання:\n" + plan.task);
+                    if(lang.equals("Python"))
+                        codeEditor.replaceText(CoursePlan.pythonTemplate());
+                    else
+                        codeEditor.replaceText(CoursePlan.javaTemplate());
+                    taskManager.saveTaskToDB(plan.task, lang);
+                });
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -233,27 +248,34 @@ public class TasksSceneController {
             usTaskI.save(usTask);
         }
 
+        // Show lesson and block editing until "I've read" is pressed
+        taskDescription.setVisible(false);
+        codeEditor.setVisible(false);
+        consoleOutput.setVisible(false);
+        lessonContent.setVisible(true);
+        lessonRead.setVisible(true);
+        lessonContent.setEditable(false);
+        launchcode.setDisable(true);
+        checkTask.setDisable(true);
+
         if ((usTask.getNum() / usTask.getControlNum()) % 26 != 1) {
             lessonContent.setText(currentTopic + "\n" + currentLesson);
-            lessonContent.setEditable(false);
-            launchcode.setDisable(true);
-            checkTask.setDisable(true);
-            lessonRead.setVisible(true);
         } else {
-            lessonContent.setText("Контроль знань №" + usTask.getControlNum());
-            lessonContent.setEditable(false);
-            launchcode.setDisable(true);
-            checkTask.setDisable(true);
-            lessonRead.setVisible(true);
+            lessonContent.setText("Контроль знань №" + usTask.getControlNum() + "\n" + currentLesson);
         }
     }
 
     @FXML
     private void markLessonAsRead() {
         lessonContent.setVisible(false);
+        lessonRead.setVisible(false);
+
+        taskDescription.setVisible(true);
+        codeEditor.setVisible(true);
+        consoleOutput.setVisible(true);
+
         launchcode.setDisable(false);
         checkTask.setDisable(false);
-        lessonRead.setVisible(false);
     }
 
     private String readStream(InputStream stream) throws IOException {
@@ -267,20 +289,40 @@ public class TasksSceneController {
         }
     }
 
+    private String sanitizeTemplate(String input) {
+        if (input == null) return "";
+        String noFences = input
+                .replaceAll("```[a-zA-Z]*\\s*", "")
+                .replace("```", "");
+        StringBuilder sb = new StringBuilder();
+        for (String line : noFences.split("\\R")) {
+            String trimmed = line.trim();
+            if (trimmed.startsWith("#")) continue;
+            sb.append(line).append("\n");
+        }
+        return sb.toString().trim();
+    }
+
     @FXML
     private void runCode(ActionEvent event) throws IOException, InterruptedException {
-        File tempFile = File.createTempFile("Main", ".java");
-        tempFile.deleteOnExit();
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
+        Path tempDir = Files.createTempDirectory("studycod");
+        File javaFile = tempDir.resolve("Main.java").toFile();
+        javaFile.deleteOnExit();
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(javaFile))) {
             writer.write(codeEditor.getText());
         }
 
-        Process compileProcess = new ProcessBuilder("javac", tempFile.getAbsolutePath()).start();
+        Process compileProcess = new ProcessBuilder("javac", javaFile.getAbsolutePath())
+                .directory(tempDir.toFile())
+                .start();
         compileProcess.waitFor();
 
         if (compileProcess.exitValue() == 0) {
-            String className = tempFile.getName().replace(".java", "");
-            Process runProcess = new ProcessBuilder("java", "-cp", tempFile.getParent(), className).start();
+            String className = "Main";
+            Process runProcess = new ProcessBuilder("java", "-cp", tempDir.toString(), className)
+                    .directory(tempDir.toFile())
+                    .start();
 
             String output = readStream(runProcess.getInputStream());
             String errors = readStream(runProcess.getErrorStream());
@@ -323,7 +365,8 @@ public class TasksSceneController {
         String result = "Оцінка: " + grade + "\n" + "Коментар: " + comment;
         consoleOutput.setText(result);
 
-        taskManager.updateTask(taskText, codeText, comment);
+        String lang = userI.findById(user.getId()).map(UserDB::getLang).orElse("Java");
+        taskManager.updateTask(taskText, codeText, comment, lang);
 
         Optional<UserDB> us = userI.findById(user.getId());
         if (us.isPresent()) {

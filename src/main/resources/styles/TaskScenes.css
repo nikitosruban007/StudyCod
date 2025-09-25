@@ -74,7 +74,7 @@
 
 .task-description {
     -fx-background-color: #333333;
-    -fx-text-fill: #eeeeee;
+    -fx-text-fill: #000000;
     -fx-border-color: #3cb371;
     -fx-border-radius: 5;
     -fx-background-radius: 5;
@@ -93,7 +93,7 @@
 
 .console-output {
     -fx-background-color: #333333;
-    -fx-text-fill: #eeeeee;
+    -fx-text-fill: #000000;
     -fx-border-color: #3cb371;
     -fx-border-radius: 5;
     -fx-background-radius: 5;
@@ -103,7 +103,7 @@
 
 .lesson-content {
     -fx-background-color: #333333;
-    -fx-text-fill: #eeeeee;
+    -fx-text-fill: #000000;
     -fx-border-color: #3cb371;
     -fx-border-radius: 5;
     -fx-background-radius: 5;

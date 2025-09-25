@@ -46,16 +46,14 @@ public class ProfileController {
 
     public void initialize() {
         if (user.isAuthorized()) {
-            // Загружаем данные пользователя из базы данных
             userDB = userManager.getUserById(user.getId());
             if (userDB != null) {
                 username.setText(user.getUsername());
                 id.setText(String.valueOf(user.getId()));
                 kcz.setText(String.valueOf(user.getDifus()));
 
-                // Инициализация выпадающего списка с языками программирования
                 languageComboBox.getItems().addAll("Java", "Python");
-                languageComboBox.setValue(userDB.getLang()); // Установка текущего языка
+                languageComboBox.setValue(userDB.getLang());
             }
         }
     }
@@ -65,7 +63,7 @@ public class ProfileController {
         if (userDB != null) {
             String selectedLanguage = languageComboBox.getValue();
             userDB.setLang(selectedLanguage);
-            userManager.updateUser(userDB); // Добавьте этот метод в UserManager
+            userManager.updateUser(userDB);
         }
     }
 

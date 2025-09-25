@@ -11,4 +11,8 @@ public interface GradeI extends JpaRepository<GradeDB, Long> {
     List<GradeDB> findAllByUserId(int userId);
     GradeDB findByUserIdAndTaskName(int userId, String taskName);
     GradeDB findByUserId(int userId);
+
+    // Language-aware
+    List<GradeDB> findAllByUserIdAndLang(int userId, String lang);
+    GradeDB findByUserIdAndTaskNameAndLang(int userId, String taskName, String lang);
 }

@@ -40,7 +40,6 @@ public class GradesSceneController {
     @FXML
     private TableColumn<TaskDetails, Integer> gradeColumn;
 
-    // беремо поточного юзера через singleton-клас User
     private final UserDB udb = new UserDB();
 
     @Autowired
@@ -53,7 +52,6 @@ public class GradesSceneController {
             loader.setControllerFactory(StudyCod.getSpringContext()::getBean);
             Parent root = loader.load();
 
-            // Передача primaryStage в контролер головної сцени
             HomeSceneController homeController = loader.getController();
             homeController.setPrimaryStage(primaryStage);
 

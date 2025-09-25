@@ -6,11 +6,14 @@ import org.example.TaskDetails;
 import org.example.User;
 import org.example.services.ai.AiRequest;
 import org.example.services.database.GradeDB;
+import org.example.services.database.UserDB;
 import org.example.services.repo.GradeI;
+import org.example.services.repo.UserI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class GradeManager {
@@ -30,14 +33,23 @@ public class GradeManager {
     @Autowired
     private GradeI gradeI;
 
+    @Autowired
+    private UserI userI;
+
+    private String resolveUserLang(long userId) {
+        Optional<UserDB> u = userI.findById(userId);
+        return u.map(UserDB::getLang).orElse("Java");
+    }
+
     public ObservableList<TaskDetails> getTaskDetailsList(int userId) {
         ObservableList<TaskDetails> taskDetailsList = FXCollections.observableArrayList();
         if (User.user().isAuthorized()) {
-            List<GradeDB> gradeDBList = gradeI.findAllByUserId(userId);
+            String lang = resolveUserLang(User.user().getId());
+            List<GradeDB> gradeDBList = gradeI.findAllByUserIdAndLang(userId, lang);
             for (GradeDB gradeDB : gradeDBList) {
                 if (gradeDB != null) {
                     taskDetailsList.add(new TaskDetails(
-                            gradeDB.getTask_name(),
+                            gradeDB.getTaskName(),
                             gradeDB.getGrade(),
                             gradeDB.getComments()
                     ));
@@ -48,7 +60,8 @@ public class GradeManager {
     }
 
     public String getTaskDetailsString(int userId, String taskName) {
-        GradeDB gradeDB = gradeI.findByUserIdAndTaskName(userId, taskName);
+        String lang = resolveUserLang(User.user().getId());
+        GradeDB gradeDB = gradeI.findByUserIdAndTaskNameAndLang(userId, taskName, lang);
         if (gradeDB == null) {
             return "Інформація відсутня";
         }
@@ -57,8 +70,10 @@ public class GradeManager {
 
     public void saveGradeToDB(String task, String grade, String comments) {
         try {
+            String lang = resolveUserLang(User.user().getId());
             GradeDB gdb = new GradeDB();
-            gdb.setTask_name(task);
+            gdb.setTaskName(task);
+            gdb.setLang(lang);
             gdb.setUserId(Math.toIntExact(User.user().getId()));
             gdb.setComments(comments);
             gdb.setGrade(Integer.parseInt(grade));

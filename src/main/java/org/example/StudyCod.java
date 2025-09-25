@@ -190,15 +190,6 @@ public class StudyCod {
         return -1;
     }
 
-    // ------------------ API Calls ------------------
-    public static String generateTopic(String task) {
-        return AiRequest.requestToAI("Згенеруй назву для навчальної теми: " + task);
-    }
-
-    public static String generateLesson(String task, String topic) {
-        return AiRequest.requestToAI("Створи урок на тему: " + topic + ". Завдання: " + task);
-    }
-
     public static String motivateAdvice() {
         return AiRequest.requestToAI("Дай коротку мотиваційну пораду для студента.");
     }

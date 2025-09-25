@@ -74,7 +74,7 @@ public class LoginController {
 
         boolean success = userManager.authenticateUser(username, pass);
         if (success) {
-            closeWindow(); // Закрываем окно после успешной авторизации
+            closeWindow();
         } else {
             correctly.setText("Невірний логін або пароль");
             correctly.setVisible(true);

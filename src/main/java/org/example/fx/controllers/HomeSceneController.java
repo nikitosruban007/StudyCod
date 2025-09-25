@@ -33,11 +33,9 @@ public class HomeSceneController {
 
     @FXML
     public void initialize() {
-        // Загружаем данные пользователя из сессии при инициализации
         updateUserData();
     }
 
-    // Метод для обновления данных пользователя и интерфейса
     private void updateUserData() {
         UserSession.loadUserData(user);
 
@@ -47,7 +45,6 @@ public class HomeSceneController {
             authorizate.setVisible(false);
         } else {
             welcome.setText("Вітаю, " + user.getUsername() + "!");
-            // Загружаем совет асинхронно
             loadAdviceAsync();
         }
     }
@@ -84,9 +81,7 @@ public class HomeSceneController {
         authStage.setScene(new Scene(root));
         authStage.initModality(Modality.APPLICATION_MODAL);
 
-        // Обработка закрытия окна авторизации
         authStage.setOnHidden(e -> {
-            // Обновляем данные пользователя после закрытия окна
             updateUserData();
         });
 

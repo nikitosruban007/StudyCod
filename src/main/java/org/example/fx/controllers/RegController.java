@@ -77,7 +77,7 @@ public class RegController {
 
         boolean success = userManager.registerUser(username, pass, language);
         if (success) {
-            closeWindow(); // Закрываем окно после успешной регистрации
+            closeWindow();
         } else {
             correctly.setText("Помилка реєстрації (ім'я зайняте)");
             correctly.setVisible(true);

@@ -9,9 +9,9 @@ import lombok.Data;
 public class DifusDB {
 
     @Id
-    @Column(name = "userId", nullable = false)
+    @Column(name = "user_id", nullable = false)
     private Long userId;
 
     @Column(name = "difficult", nullable = false)
-    private int difficult;
+    private double difficult;
 }

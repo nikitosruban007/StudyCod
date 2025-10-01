@@ -130,7 +130,7 @@ public class CoursePlan {
         }
     }
 
-    public PlanResult nextFor(String lang, int lessonIndex, int checkIndex) {
+    public PlanResult nextFor(String lang, int lessonIndex, int checkIndex, double difus) {
         boolean isCheck = (lessonIndex % 5) == 0;
         if ("Python".equalsIgnoreCase(lang)) {
             if (isCheck) {
@@ -141,7 +141,7 @@ public class CoursePlan {
             } else {
                 String topic = PYTHON_TOPICS.get((lessonIndex - 1) % PYTHON_TOPICS.size());
                 String title = "Урок " + lessonIndex + ": " + topic;
-                String task = "Напишіть приклад коду на Python на тему: " + topic + ". Коротко (20–40 рядків) з коментарями.";
+                String task = AiRequest.requestToAI("Ти вчитель програмування мови " + lang + ", згенеруй для учня завдання за темою: " + topic + ", зважайте його КЗЗ (0-легкі завдання, 1-важкі завдання, і завдання по темі)" + difus);
                 String template = pythonTemplate();
                 return new PlanResult(false, title, task, template, topic);
             }
@@ -154,7 +154,7 @@ public class CoursePlan {
             } else {
                 String topic = JAVA_TOPICS.get((lessonIndex - 1) % JAVA_TOPICS.size());
                 String title = "Урок " + lessonIndex + ": " + topic;
-                String task = "Напишіть приклад коду на Java на тему: " + topic + ". Коротко (20–40 рядків) з пояснювальними коментарями.";
+                String task = AiRequest.requestToAI("Ти вчитель програмування мови " + lang + ", згенеруй для учня завдання за темою: " + topic + ", зважайте його КЗЗ (0-легкі завдання, 1-важкі завдання, і завдання по темі)" + difus);
                 String template = javaTemplate();
                 return new PlanResult(false, title, task, template, topic);
             }

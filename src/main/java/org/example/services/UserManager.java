@@ -26,6 +26,7 @@ public class UserManager {
         this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
+    @Transactional
     public boolean registerUser(String username, String password, String language) {
         if (userI.findByUsername(username) != null) {
             return false;
@@ -42,6 +43,14 @@ public class UserManager {
         difus.setUserId(newUser.getId());
         difus.setDifficult(0);
         difusI.save(difus);
+
+        // Auto-login newly registered user
+        UserSession.saveUserData(newUser.getUsername(), String.valueOf(newUser.getId()));
+        User u = User.user();
+        u.setUsername(newUser.getUsername());
+        u.setId(newUser.getId());
+        u.setDifus(newUser.getDifus());
+        u.setAuthorized(true);
 
         return true;
     }

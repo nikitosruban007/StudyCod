@@ -201,7 +201,7 @@ public class TasksSceneController {
                 String lang = userDb.getLang() != null ? userDb.getLang() : "Java";
                 int nextLessonIndex = finalUsTask.getNum();
                 int nextCheckIndex = finalUsTask.getControlNum();
-                CoursePlan.PlanResult plan = coursePlan.nextFor(lang, nextLessonIndex, nextCheckIndex);
+                CoursePlan.PlanResult plan = coursePlan.nextFor(lang, nextLessonIndex, nextCheckIndex, userDb.getDifus());
 
                 currentTopic = plan.topic;
                 currentLesson = CoursePlan.lessonText(lang, currentTopic);

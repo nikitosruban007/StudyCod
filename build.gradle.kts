@@ -1,14 +1,16 @@
 plugins {
-    kotlin("jvm") version "1.9.22"
-    id("org.openjfx.javafxplugin") version "0.0.8"
+    id("java")
+    id("org.openjfx.javafxplugin") version "0.1.0"
     id("org.springframework.boot") version "3.1.0"
-    id("io.spring.dependency-management") version "1.1.0"
 }
 
 group = "org.example"
 version = "1.0-SNAPSHOT"
 
 java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
 }
@@ -41,6 +43,7 @@ tasks.named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
 }
 
 dependencies {
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:3.1.0"))
     implementation("org.openjfx:javafx-controls:17.0.8")
     implementation("org.openjfx:javafx-fxml:17.0.8")
     implementation("org.openjfx:javafx-web:17.0.8")
@@ -61,6 +64,7 @@ dependencies {
     implementation("com.github.almasb:fxgl:17.3") {
         exclude(group = "org.openjfx")
     }
+    implementation("org.fxmisc.richtext:richtextfx:0.11.6")
     implementation("org.hibernate.orm:hibernate-core:6.2.0.Final")
     implementation ("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation ("org.springframework.boot:spring-boot-starter-web")
@@ -80,6 +84,6 @@ dependencies {
 }
 
 javafx {
-    version = "17.0.1"
+    version = "17.0.8"
     modules = listOf("javafx.controls", "javafx.fxml", "javafx.web", "javafx.swing", "javafx.media")
 }

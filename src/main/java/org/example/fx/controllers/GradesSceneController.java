@@ -14,6 +14,7 @@ import javafx.stage.Stage;
 import lombok.Setter;
 import org.example.StudyCod;
 import org.example.TaskDetails;
+import org.example.services.LanguageManager;
 import org.example.User;
 import org.example.services.GradeManager;
 import org.example.services.database.UserDB;
@@ -66,14 +67,14 @@ public class GradesSceneController {
     public void exportTopdf(ActionEvent event) {
         try {
             FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Збереження Журналу Оцінювання в PDF");
+            fileChooser.setTitle(LanguageManager.tr("grades.export.title"));
 
             LocalDate today = LocalDate.now();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
             String formattedDate = today.format(formatter);
 
             String username = User.user().getUsername() != null ? User.user().getUsername() : "unknown";
-            fileChooser.setInitialFileName("Журнал Оцінювання " + username + " " + formattedDate + ".pdf");
+            fileChooser.setInitialFileName(String.format(LanguageManager.tr("grades.export.filename"), username, formattedDate));
             fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
 
             File file = fileChooser.showSaveDialog(primaryStage);

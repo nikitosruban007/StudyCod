@@ -16,7 +16,6 @@ public class AutoComplete {
     public static void setupAutoCompletion(CodeArea codeEditor) {
         List<String> suggestions = new ArrayList<>();
 
-        // Базові ключові слова Java
         suggestions.addAll(List.of(
                 "abstract", "assert", "boolean", "break", "byte", "case", "catch", "char", "class",
                 "const", "continue", "default", "do", "double", "else", "enum", "extends", "final",
@@ -26,14 +25,12 @@ public class AutoComplete {
                 "throw", "throws", "transient", "try", "void", "volatile", "while"
         ));
 
-        // Створення Popup для відображення пропозицій
         PopupControl popup = new PopupControl();
         ListView<String> suggestionList = new ListView<>();
         suggestionList.setMaxHeight(100); // Обмеження висоти
         popup.getScene().setRoot(suggestionList);
         popup.setAutoHide(true);
 
-        // Слухач для тексту CodeArea
         codeEditor.setOnKeyReleased(event -> {
             if (event.getCode().isLetterKey() || event.getCode() == KeyCode.BACK_SPACE) {
                 String currentWord = getCurrentWord(codeEditor);
@@ -52,18 +49,16 @@ public class AutoComplete {
             }
         });
 
-        // Слухач для натискання Enter
         codeEditor.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ENTER && popup.isShowing() &&
                     !suggestionList.getSelectionModel().isEmpty()) {
                 String selectedSuggestion = suggestionList.getSelectionModel().getSelectedItem();
                 replaceCurrentWord(codeEditor, selectedSuggestion);
                 popup.hide();
-                event.consume(); // Запобігає додаванню нового рядка
+                event.consume();
             }
         });
 
-        // Обробка вибору мишкою
         suggestionList.setOnMouseClicked(event -> {
             if (!suggestionList.getSelectionModel().isEmpty()) {
                 String selectedSuggestion = suggestionList.getSelectionModel().getSelectedItem();

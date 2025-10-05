@@ -6,6 +6,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -14,10 +15,20 @@ import lombok.Setter;
 import org.example.StudyCod;
 import org.example.User;
 import org.example.UserSession;
+import org.example.services.LanguageManager;
 import org.springframework.stereotype.Component;
 
 @Component
 public class HomeSceneController {
+
+    @FXML
+    private javafx.scene.control.Button tasksButton;
+
+    @FXML
+    private javafx.scene.control.Button gradesButton;
+
+    @FXML
+    private javafx.scene.control.ComboBox<String> langChoice;
 
     @Setter
     private Stage primaryStage;
@@ -33,18 +44,43 @@ public class HomeSceneController {
 
     @FXML
     public void initialize() {
+        // Language toggle on double-click of the welcome label (alternative)
+        welcome.setOnMouseClicked(e -> {
+            if (e.getClickCount() == 2) {
+                LanguageManager.toggle();
+                applyTranslations();
+                updateUserData();
+                if (langChoice != null) {
+                    langChoice.setValue(LanguageManager.get() == LanguageManager.Lang.UK ? "Українська" : "English");
+                }
+            }
+        });
+        if (langChoice != null) {
+            langChoice.getItems().setAll("Українська", "English");
+            langChoice.setValue(LanguageManager.get() == LanguageManager.Lang.UK ? "Українська" : "English");
+        }
+        applyTranslations();
         updateUserData();
+    }
+
+    private void applyTranslations() {
+        // Buttons
+        if (tasksButton != null) tasksButton.setText(LanguageManager.tr("nav.tasks"));
+        if (gradesButton != null) gradesButton.setText(LanguageManager.tr("nav.grades"));
+        // Auth warning default text
+        if (authorizate != null) authorizate.setText(LanguageManager.tr("auth.required"));
     }
 
     private void updateUserData() {
         UserSession.loadUserData(user);
 
         if (!user.isAuthorized()) {
-            welcome.setText("Вітаю в StudyCod!");
-            advice.setText("Мотиваційна порада перед навчанням😉: Увійти або зареєструвати акаунт");
+            welcome.setText(LanguageManager.tr("welcome.guest"));
+            advice.setText(LanguageManager.tr("advice.prefix") + LanguageManager.tr("advice.askAuth"));
             authorizate.setVisible(false);
         } else {
-            welcome.setText("Вітаю, " + user.getUsername() + "!");
+            welcome.setText(String.format(LanguageManager.tr("welcome.user"), user.getUsername() != null ? user.getUsername() : ""));
+            advice.setText(LanguageManager.tr("advice.prefix") + LanguageManager.tr("advice.loading"));
             loadAdviceAsync();
         }
     }
@@ -53,7 +89,7 @@ public class HomeSceneController {
         new Thread(() -> {
             String adv = StudyCod.motivateAdvice();
             javafx.application.Platform.runLater(() -> {
-                advice.setText("Мотиваційна порада перед навчанням😉: " + adv);
+                advice.setText(LanguageManager.tr("advice.prefix") + adv);
             });
         }).start();
     }
@@ -77,7 +113,7 @@ public class HomeSceneController {
         Parent root = loader.load();
 
         Stage authStage = new Stage();
-        authStage.setTitle("Авторизація");
+        authStage.setTitle(LanguageManager.tr("auth.title"));
         authStage.setScene(new Scene(root));
         authStage.initModality(Modality.APPLICATION_MODAL);
 
@@ -94,18 +130,26 @@ public class HomeSceneController {
         Parent root = loader.load();
 
         Stage profileStage = new Stage();
-        profileStage.setTitle("Профіль");
+        profileStage.setTitle(LanguageManager.tr("profile.title"));
         profileStage.setScene(new Scene(root));
         profileStage.initModality(Modality.APPLICATION_MODAL);
         profileStage.show();
     }
 
     @FXML
-    private void goToTasks(ActionEvent event) {
-        if (user.isAuthorized()) {
+    public void goToTasks() {
+        try {
             openTasksScene();
-        } else {
-            showAuthorizationWarning();
+
+        } catch (Exception e) {
+            System.err.println("Error loading TasksScene: " + e.getMessage());
+            e.printStackTrace();
+            // Fallback - показать простое сообщение об ошибке
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Помилка");
+            alert.setHeaderText("Не вдалося завантажити сцену завдань");
+            alert.setContentText(e.getMessage());
+            alert.showAndWait();
         }
     }
 
@@ -148,10 +192,24 @@ public class HomeSceneController {
     }
 
     private void showAuthorizationWarning() {
-        authorizate.setText("Будь ласка, увійдіть в систему");
+        authorizate.setText(LanguageManager.tr("auth.required"));
         authorizate.setVisible(true);
         PauseTransition pause = new PauseTransition(Duration.seconds(5));
         pause.setOnFinished(e -> authorizate.setVisible(false));
         pause.play();
+    }
+
+    @FXML
+    private void changeUiLanguage(ActionEvent event) {
+        if (langChoice != null) {
+            String selected = langChoice.getValue();
+            if (selected != null && selected.startsWith("Укр")) {
+                LanguageManager.set(LanguageManager.Lang.UK);
+            } else {
+                LanguageManager.set(LanguageManager.Lang.EN);
+            }
+            applyTranslations();
+            updateUserData();
+        }
     }
 }

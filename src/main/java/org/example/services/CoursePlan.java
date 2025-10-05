@@ -1,24 +1,27 @@
 package org.example.services;
 
 import org.example.services.ai.AiRequest;
+import org.example.services.database.UserDB;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
 public class CoursePlan {
 
     private static final List<String> JAVA_TOPICS = List.of(
-            "Вступ до Java та JVM",
+            "Вступ до Java",
             "Типи даних і змінні",
             "Оператори та вирази",
-            "Керування потоком: if/else, switch",
-            "Цикли: for, while, do-while",
+            "Керування потоком: if/else; switch",
+            "Цикли: for; while; do-while",
             "Масиви та робота з ними",
-            "Методи, параметри, перевантаження",
+            "Методи; параметри; перевантаження",
             "Рекурсія",
             "Класи та об'єкти",
-            "Інкапсуляція, гетери/сетери",
+            "Інкапсуляція; гетери/сетери",
             "Статичні члени і ініціалізація",
             "Наслідування",
             "Поліморфізм і пізнє зв'язування",
@@ -27,36 +30,34 @@ public class CoursePlan {
             "Перелічення (enum)",
             "Узагальнення (Generics) – основи",
             "Узагальнення – обмеження та PECS",
-            "Колекції: List, Set, Map",
+            "Колекції: List; Set; Map",
             "Колекції: ітератори та порівняння",
-            "Порівняння об'єктів: equals, hashCode, Comparable, Comparator",
+            "Порівняння об'єктів: equals; hashCode; Comparable; Comparator",
             "Обробка винятків – основи",
             "Створення власних винятків",
-            "Пакети та модульна система (Java 9+)",
-            "Рядки: String, StringBuilder, StringBuffer",
+            "Рядки: String; StringBuilder; StringBuffer",
             "Дата і час: java.time",
             "Ввід/вивід: java.io",
-            "NIO.2: Path, Files, Channels",
+            "NIO.2: Path; Files; Channels",
             "Серіалізація",
             "Рефлексія та анотації",
             "Лямбда-вирази",
             "Функціональні інтерфейси",
             "Stream API – основи",
             "Stream API – колектори та паралельні потоки",
-            "Конкурентність: Thread, Runnable",
-            "Executors, Future, CompletableFuture",
-            "Синхронізація: synchronized, locks, atomics",
+            "Конкурентність: Thread; Runnable",
+            "Executors; Future; CompletableFuture",
+            "Синхронізація: synchronized; locks; atomics",
             "Пул потоків та планування задач",
-            "Мережеве програмування: сокети, HTTP-клієнт",
+            "Мережеве програмування: сокети; HTTP-клієнт",
             "Робота з БД: JDBC",
             "ORM основи: JPA/Hibernate",
-            "Логування: SLF4J, Logback",
-            "Тестування: JUnit 5, Mockito",
-            "Інструменти збирання: Maven/Gradle",
+            "Логування: SLF4J; Logback",
+            "Тестування: JUnit 5; Mockito",
             "Профілювання і налагодження",
             "Управління пам’яттю та GC",
             "Патерни проєктування – огляд",
-            "Патерни: Singleton, Factory, Strategy, Observer",
+            "Патерни: Singleton; Factory; Strategy; Observer",
             "Безпека: основи криптографії в Java",
             "Робота з JSON/XML"
     );
@@ -73,7 +74,7 @@ public class CoursePlan {
             "Множини (set)",
             "Словники (dict)",
             "Включення: list/set/dict comprehensions",
-            "Функції та параметри, *args/**kwargs",
+            "Функції та параметри *args/**kwargs",
             "Замикання та функції вищого порядку",
             "Генератори та ітератори",
             "Модулі та пакети",
@@ -83,36 +84,37 @@ public class CoursePlan {
             "ООП: класи та об'єкти",
             "Наслідування і поліморфізм",
             "Декоратори",
-            "Типізація: typing, type hints",
+            "Типізація: typing; type hints",
             "Колекції з модуля collections",
             "Дата і час: datetime",
             "Регулярні вирази: re",
             "HTTP-клієнти: requests/httpx",
             "Парсинг HTML: BeautifulSoup",
-            "JSON, CSV, XML",
+            "JSON; CSV; XML",
             "Асинхронність: asyncio (async/await)",
-            "Потоки та процеси: threading, multiprocessing",
-            "Віртуальні середовища: venv/poetry/pip",
+            "Потоки та процеси: threading; multiprocessing",
+            "Віртуальні середовища: venv; poetry; pip",
             "Логування",
-            "Тестування: unittest/pytest",
+            "Тестування: unittest; pytest",
             "Профілювання і налагодження",
-            "Робота з БД: sqlite3, SQLAlchemy",
+            "Робота з БД: sqlite3; SQLAlchemy",
             "Мережеве програмування: сокети",
             "Шляхи та файли: pathlib",
             "NumPy – основи",
             "Pandas – основи",
-            "Візуалізація: Matplotlib/Seaborn",
+            "Візуалізація: Matplotlib; Seaborn",
             "ML (огляд): scikit-learn – базові поняття",
             "Веб: Flask – основи",
             "Веб: FastAPI – основи",
             "Веб: Django – основи",
-            "Черги та задачі: Celery, брокери (огляд)",
-            "Документація і стиль коду: PEP 8, docstring",
+            "Черги та задачі: Celery; брокери (огляд)",
+            "Документація і стиль коду: PEP 8; docstring",
             "Пакетування і дистрибуція: setuptools",
-            "Безпека: секрети, .env",
+            "Безпека: секрети .env",
             "Хмара/CLI (огляд): boto3",
             "Найкращі практики та патерни"
     );
+
 
     public static class PlanResult {
         public final boolean knowledgeCheck;
@@ -130,31 +132,57 @@ public class CoursePlan {
         }
     }
 
-    public PlanResult nextFor(String lang, int lessonIndex, int checkIndex, double difus) {
+    private String getLastTopics(String lang, UserDB user) {
+        String topicsStr = "";
+        switch (lang) {
+            case "Java":
+                topicsStr = user.getTopicsJava();
+                break;
+            case  "Python":
+                topicsStr = user.getTopicsPython();
+                break;
+        }
+        if (topicsStr == null || topicsStr.isBlank()) {
+            return "";
+        }
+
+        List<String> topics = new ArrayList<>(Arrays.asList(topicsStr.split(",")));
+        topics.replaceAll(String::trim);
+
+        int size = topics.size();
+        int fromIndex = Math.max(size - 5, 0);
+        return String.join(", ", topics.subList(fromIndex, size));
+    }
+
+
+    public PlanResult nextFor(String lang, int lessonIndex, int checkIndex, double difus, UserDB user) {
         boolean isCheck = (lessonIndex % 5) == 0;
+        String title = "";
         if ("Python".equalsIgnoreCase(lang)) {
             if (isCheck) {
-                String title = "Контроль знань №" + (checkIndex);
-                String task = "Виконайте контроль знань з Python за останні 5 уроків. Напишіть 3 короткі функції, що демонструють ключові ідеї тем.";
+                title = "Контроль знань №" + (checkIndex);
+                String topicsStr = getLastTopics(lang, user);
+                String task = AiRequest.requestToAI("Згенеруй завдання для контрольної роботи по темам: " + topicsStr + ". ТІЛЬКИ ЗАВДАННЯ, БЕЗ УРОКУ, БЕЗ ФОРМАТУВАННЯ ТІЛЬКИ ЗАВДАННЯ, ШВИДКО ТА КОРОТКО ТОБТО, ЗАВДАННЯ ПО ТИПУ: НАПИШИ ПРОГРАМУ ЩОБ ВОНА ВИКОНАЛА ТЕ СЕ, УЧНЮ ВЖЕ БУЛА НАДА ТЕОРІЯ, ТОМУ ПРОСТО ЗАВДАННЯ ЗА ТЕМОЮ");
                 String template = pythonTemplate();
-                return new PlanResult(true, title, task, template, "Контроль знань");
+                return new PlanResult(true, title, task, template, "-");
             } else {
                 String topic = PYTHON_TOPICS.get((lessonIndex - 1) % PYTHON_TOPICS.size());
-                String title = "Урок " + lessonIndex + ": " + topic;
-                String task = AiRequest.requestToAI("Ти вчитель програмування мови " + lang + ", згенеруй для учня завдання за темою: " + topic + ", зважайте його КЗЗ (0-легкі завдання, 1-важкі завдання, і завдання по темі)" + difus);
+                title = "Урок " + lessonIndex;
+                String task = AiRequest.requestToAI("Ти вчитель програмування мови " + lang + ", згенеруй для учня завдання за темою: " + topic + ". Враховуй його КЗЗ (0 — легкі завдання, 1 — важкі завдання, лише по темі). Значення КЗЗ: " + difus + ". ТІЛЬКИ ЗАВДАННЯ, БЕЗ УРОКУ, БЕЗ ФОРМАТУВАННЯ ТІЛЬКИ ЗАВДАННЯ, ШВИДКО ТАК КОРОТКО ТОБТО, ЗАВДАННЯ ПО ТИПУ: НАПИШИ ПРОГРАМУ ЩОБ ВОНА ВИКОНАЛА ТЕ СЕ, УЧНЮ ВЖЕ БУЛА НАДА ТЕОРІЯ, ТОМУ ПРОСТО ЗАВДАННЯ ЗА ТЕМОЮ");
                 String template = pythonTemplate();
                 return new PlanResult(false, title, task, template, topic);
             }
         } else {
             if (isCheck) {
-                String title = "Контроль знань №" + (checkIndex);
-                String task = "Виконайте контроль знань з Java за останні 5 уроків. Напишіть 2 класи і тести (main), що демонструють ключові ідеї тем.";
+                title = "Контроль знань №" + (checkIndex);
+                String topicsStr = getLastTopics(lang, user);
+                String task = AiRequest.requestToAI("Згенеруй завдання для контрольної роботи по темам: " + topicsStr + ". ТІЛЬКИ ЗАВДАННЯ, БЕЗ УРОКУ, БЕЗ ФОРМАТУВАННЯ ТІЛЬКИ ЗАВДАННЯ, ШВИДКО ТА КОРОТКО ТОБТО, ЗАВДАННЯ ПО ТИПУ: НАПИШИ ПРОГРАМУ ЩОБ ВОНА ВИКОНАЛА ТЕ СЕ, УЧНЮ ВЖЕ БУЛА НАДА ТЕОРІЯ, ТОМУ ПРОСТО ЗАВДАННЯ ЗА ТЕМОЮ");
                 String template = javaTemplate();
-                return new PlanResult(true, title, task, template, "Контроль знань");
+                return new PlanResult(true, title, task, template, "-");
             } else {
                 String topic = JAVA_TOPICS.get((lessonIndex - 1) % JAVA_TOPICS.size());
-                String title = "Урок " + lessonIndex + ": " + topic;
-                String task = AiRequest.requestToAI("Ти вчитель програмування мови " + lang + ", згенеруй для учня завдання за темою: " + topic + ", зважайте його КЗЗ (0-легкі завдання, 1-важкі завдання, і завдання по темі)" + difus);
+                title = "Урок " + lessonIndex;
+                String task = AiRequest.requestToAI("Ти вчитель програмування мови " + lang + ", згенеруй для учня завдання за темою: " + topic + ". Враховуй його КЗЗ (0 — легкі завдання, 1 — важкі завдання, лише по темі). Значення КЗЗ: " + difus + ". ТІЛЬКИ ЗАВДАННЯ, БЕЗ УРОКУ, БЕЗ ФОРМАТУВАННЯ ТІЛЬКИ ЗАВДАННЯ, ШВИДКО ТАК КОРОТКО ТОБТО, ЗАВДАННЯ ПО ТИПУ: НАПИШИ ПРОГРАМУ ЩОБ ВОНА ВИКОНАЛА ТЕ СЕ, УЧНЮ ВЖЕ БУЛА НАДА ТЕОРІЯ, ТОМУ ПРОСТО ЗАВДАННЯ ЗА ТЕМОЮ");
                 String template = javaTemplate();
                 return new PlanResult(false, title, task, template, topic);
             }
@@ -162,7 +190,7 @@ public class CoursePlan {
     }
 
     public static String lessonText(String lang, String topic){
-        return AiRequest.requestToAI("Ти вчитель програмування мови " + lang + ", розроби текст для уроку на самоопрацювання по темі: " + topic + ", не використовуй ніякого форматування лише текст");
+        return AiRequest.requestToAI("Ти вчитель програмування мови " + lang + ", розроби текст для уроку на самоопрацювання по темі: " + topic + ", не використовуй ніякого форматування лише текст і поменше тексту, головне для учня без води");
     }
 
     public static String javaTemplate() {

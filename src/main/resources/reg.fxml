@@ -5,47 +5,40 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="400.0" prefWidth="290.0" styleClass="dialog-root" stylesheets="@styles/TaskScenes.css" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/23.0.1" fx:controller="org.example.fx.controllers.RegController">
-    <ImageView fx:id="imageView" fitHeight="14.0" fitWidth="14.0" layoutX="269.0" layoutY="7.0" onMouseClicked="#closeDialog" styleClass="close-button">
-        <image>
-            <Image url="@closing.png" />
-        </image>
-    </ImageView>
-    <Label layoutX="72.0" layoutY="14.0" text="Реєстрація" styleClass="dialog-title">
+<AnchorPane prefHeight="400.0" prefWidth="290.0" styleClass="dialog-root" stylesheets="@styles/TaskScenes.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.fx.controllers.RegController">
+    <Label layoutX="87.0" layoutY="14.0" styleClass="dialog-title" text="Реєстрація">
         <font>
             <Font name="JetBrains Mono Bold" size="22.0" />
         </font>
     </Label>
-    <Label layoutX="53.0" layoutY="49.0" prefHeight="30.0" prefWidth="73.0" text="Логін" styleClass="input-label">
+    <Label layoutX="53.0" layoutY="49.0" prefHeight="30.0" prefWidth="73.0" styleClass="input-label" text="Логін">
         <font>
             <Font name="JetBrains Mono" size="14.0" />
         </font>
     </Label>
     <TextField fx:id="login" layoutX="62.0" layoutY="75.0" prefHeight="38.0" prefWidth="166.0" styleClass="text-input" />
-    <Label layoutX="55.0" layoutY="120.0" text="Пароль" styleClass="input-label">
+    <Label layoutX="55.0" layoutY="120.0" styleClass="input-label" text="Пароль">
         <font>
             <Font name="JetBrains Mono" size="14.0" />
         </font>
     </Label>
     <PasswordField fx:id="password" layoutX="61.0" layoutY="148.0" prefHeight="38.0" prefWidth="166.0" styleClass="text-input" />
-    <Label layoutX="55.0" layoutY="190.0" text="Мова програмування" styleClass="input-label">
+    <Label layoutX="55.0" layoutY="190.0" styleClass="input-label" text="Мова програмування">
         <font>
             <Font name="JetBrains Mono" size="14.0" />
         </font>
     </Label>
     <ComboBox fx:id="languageComboBox" layoutX="61.0" layoutY="218.0" prefHeight="38.0" prefWidth="166.0" styleClass="combo-box" />
-    <Button layoutX="86.0" layoutY="265.0" onAction="#RegisterUser" prefHeight="50.0" prefWidth="118.0" text="Зареєструватися" styleClass="primary-button">
+    <Button layoutX="61.0" layoutY="278.0" onAction="#RegisterUser" prefHeight="50.0" prefWidth="166.0" styleClass="primary-button" text="Зареєструватися">
         <font>
             <Font name="JetBrains Mono" size="12.0" />
         </font>
     </Button>
     <Label fx:id="correctly" layoutX="50.0" layoutY="320.0" prefWidth="190.0" styleClass="error-label" />
-    <Label fx:id="regtext" layoutX="90.0" layoutY="345.0" onMouseClicked="#openLoginDialog" text="Є аккаунт?" styleClass="link-label">
+    <Label fx:id="regtext" layoutX="108.0" layoutY="349.0" onMouseClicked="#openLoginDialog" styleClass="link-label" text="Є аккаунт?">
         <font>
             <Font name="JetBrains Mono" size="12.0" />
         </font>

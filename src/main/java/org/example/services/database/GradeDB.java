@@ -14,7 +14,7 @@ public class GradeDB {
     @Column(name = "user_id", nullable = false)
     private Integer userId;
 
-    @Column(name = "task_name", nullable = false)
+    @Column(name = "taskName", nullable = false)
     private String taskName;
 
     @Column(name = "lang", nullable = false)
@@ -23,7 +23,8 @@ public class GradeDB {
     @Column(name = "grade", nullable = false)
     private int grade;
 
-    @Column(name = "comments", nullable = false)
+    @Lob
+    @Column(name = "comments", nullable = false, columnDefinition = "LONGTEXT")
     private String comments;
 
 }

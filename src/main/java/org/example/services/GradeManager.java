@@ -19,16 +19,29 @@ import java.util.Optional;
 public class GradeManager {
 
     public String GradeforI(String code, String ttext) {
-        return AiRequest.requestToAI("Оціни код на його роботу, тобто він взагалі працює та завдання виконується? Тільки число, макс. бал - 5., мін 0 балів. Код: " + code + ", а також тримай завдання за яким треба оцінити код: " + ttext);
+        return AiRequest.requestToAI(
+                "Оціни, наскільки код виконує завдання: якщо завдання повністю виконано — 5, частково — від 4 до 1, зовсім не виконано — 0. " +
+                        "Відповідь надай тільки числом від 0 до 5. Не додавай тексту. " +
+                        "Завдання: " + ttext + "\n" +
+                        "Код:\n" + code
+        );
     }
 
     public String GradeforII(String code, String ttext) {
-        return AiRequest.requestToAI("Оціни код за його оптимізацією, тобто якщо його не можна оптимізувати (макс. оптимізація) - 4 бали, повністю не оптимізований, дуже погано працює - 0 балів. Тільки число. Код: %s" + code + ", а також тримай завдання за яким треба оцінити код: " + ttext);
+        return AiRequest.requestToAI(
+                "Оціни код за його оптимізацію: 4 — повністю оптимізований, 0 — дуже погано оптимізований. " +
+                        "Відповідь — тільки число від 0 до 4. Завдання: " + ttext + "\nКод:\n" + code
+        );
     }
 
     public String GradeforIII(String code, String ttext) {
-        return AiRequest.requestToAI("Оціни код за його антиплагіатністю, тобто якщо його плагіатність від 0% до 35% - 3 бали, від 35% до 70% - 2 бали, від 70% до 87% - 1 бал, від 87% до 100% - 0 балів. Тільки число. Код: " + code + ", а також тримай завдання за яким треба оцінити код: " + ttext);
+        return AiRequest.requestToAI(
+                "Оціни код за антиплагіатністю: 3 — плагіатність 0-35%, 2 — 35-70%, 1 — 70-87%, 0 — 87-100%. " +
+                        "Відповідь — тільки число від 0 до 3. Завдання: " + ttext + "\nКод:\n" + code
+        );
     }
+
+
 
     @Autowired
     private GradeI gradeI;
@@ -39,6 +52,17 @@ public class GradeManager {
     private String resolveUserLang(long userId) {
         Optional<UserDB> u = userI.findById(userId);
         return u.map(UserDB::getLang).orElse("Java");
+    }
+
+    public int intermediateGrade(Long userId) {
+        return (int) Math.round(
+                gradeI.getGrades(userId)
+                        .subList(Math.max(gradeI.getGrades(userId).size() - 5, 0), gradeI.getGrades(userId).size())
+                        .stream()
+                        .mapToInt(Integer::intValue)
+                        .average()
+                        .orElse(0)
+        );
     }
 
     public ObservableList<TaskDetails> getTaskDetailsList(int userId) {

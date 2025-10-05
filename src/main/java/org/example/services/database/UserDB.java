@@ -23,8 +23,11 @@ public class UserDB {
     @Column(name = "difus", nullable = false)
     private double difus;
 
-    @Column(name = "topics")
-    private String topics;
+    @Column(name = "topicsJava", columnDefinition = "LONGTEXT")
+    private String topicsJava;
+
+    @Column(name = "topicsPython", columnDefinition = "LONGTEXT")
+    private String topicsPython;
 
     @Transient
     private boolean isAuthorized;

@@ -18,13 +18,16 @@ public class TaskDB {
     @Column(name = "user_id", nullable = false)
     private Integer userId;
 
-    @Column(name = "description", nullable = false)
+    @Lob
+    @Column(name = "description", nullable = false, columnDefinition = "LONGTEXT")
     private String description;
 
-    @Column(name = "task_name", nullable = false)
+    @Lob
+    @Column(name = "task_name", nullable = false, columnDefinition = "LONGTEXT")
     private String taskName;
 
-    @Column(name = "finish_code")
+    @Lob
+    @Column(name = "finish_code", columnDefinition = "LONGTEXT")
     private String finishCode;
 
     @Lob

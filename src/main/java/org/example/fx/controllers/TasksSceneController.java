@@ -17,7 +17,7 @@ import org.example.User;
 import org.example.services.CoursePlan;
 import org.example.services.GradeManager;
 import org.example.services.TaskManager;
-import org.example.services.ai.AiRequest;
+import org.example.services.LanguageManager;
 import org.example.services.database.UsTaskDB;
 import org.example.services.database.UserDB;
 import org.example.services.repo.UsTaskI;
@@ -56,6 +56,9 @@ public class TasksSceneController {
     private String currentLesson = null;
     private String currentTopic = null;
     private String currentTaskText = null;
+    // Track current task type and check index
+    private boolean currentKnowledgeCheck = false;
+    private int currentCheckIndex = 0;
 
     User user = User.user();
 
@@ -180,11 +183,21 @@ public class TasksSceneController {
 
     @FXML
     private void generateTask(ActionEvent event) {
+        lessonContent.setVisible(true);
+        lessonRead.setVisible(true);
+        lessonContent.setEditable(false);
+        taskDescription.setVisible(true);
+        codeEditor.setVisible(false);
+        consoleOutput.setVisible(false);
+        lessonContent.setText(LanguageManager.tr("loading.lesson"));
+        taskDescription.setText(LanguageManager.tr("loading.task"));
+        generateTask.setDisable(true);
+        launchcode.setDisable(true);
+        checkTask.setDisable(true);
         Optional<UserDB> opt = userI.findById(User.user().getId());
         if (opt.isEmpty()) return;
         UserDB userDb = opt.get();
 
-        // Получаем или создаем запись UsTaskDB
         UsTaskDB usTask = usTaskI.getByUserId(userDb.getId());
         if (usTask == null) {
             usTask = new UsTaskDB();
@@ -201,16 +214,26 @@ public class TasksSceneController {
                 String lang = userDb.getLang() != null ? userDb.getLang() : "Java";
                 int nextLessonIndex = finalUsTask.getNum();
                 int nextCheckIndex = finalUsTask.getControlNum();
-                CoursePlan.PlanResult plan = coursePlan.nextFor(lang, nextLessonIndex, nextCheckIndex, userDb.getDifus());
+                CoursePlan.PlanResult plan = coursePlan.nextFor(lang, nextLessonIndex, nextCheckIndex, userDb.getDifus(), userDb);
 
                 currentTopic = plan.topic;
                 currentLesson = CoursePlan.lessonText(lang, currentTopic);
                 currentTaskText = plan.task;
+                currentKnowledgeCheck = plan.knowledgeCheck;
+                currentCheckIndex = currentKnowledgeCheck ? nextCheckIndex : 0;
 
-                if (!plan.knowledgeCheck && currentTopic != null) {
-                    String topics = userDb.getTopics() == null ? "" : userDb.getTopics();
-                    userDb.setTopics(topics + currentTopic + ", ");
-                    userI.save(userDb);
+                if (lang.equals("Java")) {
+                    if (!plan.knowledgeCheck && currentTopic != null) {
+                        String topics = userDb.getTopicsJava() == null ? "" : userDb.getTopicsJava();
+                        userDb.setTopicsJava(topics + currentTopic + ", ");
+                        userI.save(userDb);
+                    }
+                } else {
+                    if (!plan.knowledgeCheck && currentTopic != null) {
+                        String topics = userDb.getTopicsPython() == null ? "" : userDb.getTopicsPython();
+                        userDb.setTopicsPython(topics + currentTopic + ", ");
+                        userI.save(userDb);
+                    }
                 }
 
                 loadLesson(currentLesson, plan.knowledgeCheck ? ("Контроль знань №" + nextCheckIndex) : currentTopic);
@@ -240,7 +263,6 @@ public class TasksSceneController {
     private void loadLesson(String currentLesson, String currentTopic) {
         UsTaskDB usTask = usTaskI.getByUserId(user.getId());
         if (usTask == null) {
-            // Создаем запись если не существует
             usTask = new UsTaskDB();
             usTask.setUserId(Math.toIntExact(user.getId()));
             usTask.setNum(1);
@@ -248,7 +270,6 @@ public class TasksSceneController {
             usTaskI.save(usTask);
         }
 
-        // Show lesson and block editing until "I've read" is pressed
         taskDescription.setVisible(false);
         codeEditor.setVisible(false);
         consoleOutput.setVisible(false);
@@ -258,7 +279,7 @@ public class TasksSceneController {
         launchcode.setDisable(true);
         checkTask.setDisable(true);
 
-        if ((usTask.getNum() / usTask.getControlNum()) % 26 != 1) {
+        if ((usTask.getNum() / usTask.getControlNum()) % 5 != 1) {
             lessonContent.setText(currentTopic + "\n" + currentLesson);
         } else {
             lessonContent.setText("Контроль знань №" + usTask.getControlNum() + "\n" + currentLesson);
@@ -330,7 +351,7 @@ public class TasksSceneController {
             consoleOutput.setText(output + (errors.isEmpty() ? "" : "\nErrors:\n" + errors));
         } else {
             String errors = readStream(compileProcess.getErrorStream());
-            consoleOutput.setText("Compilation failed:\n" + errors);
+            String hint = "";
         }
     }
 
@@ -338,7 +359,6 @@ public class TasksSceneController {
     private void checkCode(ActionEvent event) {
         UsTaskDB usTask = usTaskI.getByUserId(user.getId());
         if (usTask == null) {
-            // Создаем запись если не существует
             usTask = new UsTaskDB();
             usTask.setUserId(Math.toIntExact(user.getId()));
             usTask.setNum(1);
@@ -346,49 +366,66 @@ public class TasksSceneController {
             usTaskI.save(usTask);
         }
 
-        generateTask.setDisable(false);
+        generateTask.setDisable(true);
         launchcode.setDisable(true);
         checkTask.setDisable(true);
+        consoleOutput.setText(LanguageManager.tr("loading.grading"));
 
-        String codeText = codeEditor.getText();
-        String taskText = currentTaskText;
+        final UsTaskDB finalUsTask = usTask;
 
-        int grade1 = StudyCod.transformTexttoJSON(gradeManager.GradeforI(codeText, taskText).trim());
-        int grade2 = StudyCod.transformTexttoJSON(gradeManager.GradeforII(codeText, taskText).trim());
-        int grade3 = StudyCod.transformTexttoJSON(gradeManager.GradeforIII(codeText, taskText).trim());
+        new Thread(() -> {
+            String codeText = codeEditor.getText();
+            String taskText = currentTaskText;
 
-        int grade = grade1 + grade2 + grade3;
+            int grade1 = Integer.parseInt(gradeManager.GradeforI(codeText, taskText).trim());
+            int grade2 = Integer.parseInt(gradeManager.GradeforII(codeText, taskText).trim());
+            int grade3 = Integer.parseInt(gradeManager.GradeforIII(codeText, taskText).trim());
 
-        String task = "Завдання №" + usTask.getNum();
+            int grade = grade1 + grade2 + grade3;
 
-        String comment = StudyCod.Comment(codeText, taskText, grade1, grade2, grade3, grade);
-        String result = "Оцінка: " + grade + "\n" + "Коментар: " + comment;
-        consoleOutput.setText(result);
+            // Use proper title for knowledge check vs regular task
+            String taskTitle = currentKnowledgeCheck
+                    ? ("Контроль знань №" + currentCheckIndex)
+                    : ("Завдання №" + finalUsTask.getNum());
 
-        String lang = userI.findById(user.getId()).map(UserDB::getLang).orElse("Java");
-        taskManager.updateTask(taskText, codeText, comment, lang);
+            String comment = StudyCod.Comment(codeText, taskText, grade);
+            String result = "Оцінка: " + grade + "\n" + "Коментар: " + comment;
 
-        Optional<UserDB> us = userI.findById(user.getId());
-        if (us.isPresent()) {
-            UserDB udb = us.get();
+            String lang = userI.findById(user.getId()).map(UserDB::getLang).orElse("Java");
+            taskManager.updateTask(taskText, codeText, comment, lang);
 
-            if (grade >= 8) {
-                udb.setDifus(udb.getDifus() + 0.03);
-            } else if (grade == 7) {
-                udb.setDifus(udb.getDifus() + 0.01);
-            } else if (grade <= 4 && grade > 0) {
-                udb.setDifus(udb.getDifus() - 0.02);
-            } else if (grade == 0) {
-                udb.setDifus(udb.getDifus() - 0.04);
+            Optional<UserDB> us = userI.findById(user.getId());
+            if (us.isPresent()) {
+                UserDB udb = us.get();
+
+                if (grade >= 8) {
+                    udb.setDifus(udb.getDifus() + 0.015);
+                } else if (grade == 7) {
+                    udb.setDifus(udb.getDifus() + 0.005);
+                } else if (grade <= 4 && grade > 0) {
+                    udb.setDifus(udb.getDifus() - 0.015);
+                } else if (grade == 0) {
+                    udb.setDifus(udb.getDifus() - 0.002);
+                }
+
+                if (udb.getDifus() < 0) udb.setDifus(0);
+                if (udb.getDifus() > 1) udb.setDifus(1);
+                userI.save(udb);
+                gradeManager.saveGradeToDB(taskTitle, String.valueOf(grade), comment);
+                if (currentKnowledgeCheck) {
+                    gradeManager.saveGradeToDB("Проміжна", String.valueOf(gradeManager.intermediateGrade(user.getId())), "Проміжна оцінка за тему");
+                }
             }
 
-            if (udb.getDifus() < 0) udb.setDifus(0);
-            if (udb.getDifus() > 1) udb.setDifus(1);
-            userI.save(udb); // сохраняем изменения
-            gradeManager.saveGradeToDB(task, String.valueOf(grade), comment);
-        }
+            finalUsTask.setNum(finalUsTask.getNum() + 1);
+            usTaskI.save(finalUsTask);
 
-        usTask.setNum(usTask.getNum() + 1);
-        usTaskI.save(usTask);
+            Platform.runLater(() -> {
+                consoleOutput.setText(result);
+                generateTask.setDisable(false);
+                launchcode.setDisable(false);
+                checkTask.setDisable(false);
+            });
+        }).start();
     }
 }

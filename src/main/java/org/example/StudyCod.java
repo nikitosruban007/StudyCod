@@ -29,38 +29,59 @@ import org.example.fx.controllers.GradesSceneController;
 import org.example.fx.controllers.HomeSceneController;
 import org.example.fx.controllers.TasksSceneController;
 import org.example.services.ai.AiRequest;
-import org.example.services.database.UserDB;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import java.util.List;
 import java.util.Objects;
 
 @SpringBootApplication(scanBasePackages = "org.example")
 public class StudyCod {
 
-    // ------------------ API ------------------
-    private static final String API_URL = "https://openrouter.ai/api/v1/chat/completions";
-    private static final String API_KEY = "sk-or-v1-..."; // ⚠️ краще в application.properties
-
-    public static UserDB u = new UserDB();
-
     @Getter
     private static ConfigurableApplicationContext springContext;
+
+    private static final List<String> STUDENT_TIPS = List.of(
+            "Навчайся не заради оцінки, а заради знань.",
+            "Кожна помилка — це крок до майстерності.",
+            "Не відкладайте важливе на завтра — почніть сьогодні.",
+            "Успіх приходить до тих, хто не здається.",
+            "Зосередься на процесі, а не лише на результаті.",
+            "Краще зробити хоч щось, ніж ідеально нічого.",
+            "Маленькі щоденні кроки ведуть до великих звершень.",
+            "Не порівнюй себе з іншими — порівнюй із собою вчорашнім.",
+            "Знання — це найкраща інвестиція у себе.",
+            "Відпочинок — частина продуктивності, а не її ворог.",
+            "Став чіткі цілі й розділяй їх на маленькі завдання.",
+            "Найскладніше — почати. Почни зараз.",
+            "Твоя дисципліна — найкращий союзник у навчанні.",
+            "Не бійся питати — це шлях до розуміння.",
+            "Твої сьогоднішні зусилля — завтрашня впевненість.",
+            "Помилки не визначають тебе — вони навчають тебе.",
+            "Постійне навчання — ключ до розвитку.",
+            "Навіть коротке навчання щодня дає великі результати.",
+            "Кожен день — шанс стати трохи кращим.",
+            "Зосереджуйся на якості, а не на кількості.",
+            "Не шукай натхнення — створюй його діями.",
+            "Твої мрії варті того, щоб за них боротися.",
+            "Навчання — це не тягар, а привілей.",
+            "Думай як дослідник, а не як виконавець.",
+            "Коли важко — значить, ти ростеш.",
+            "Великі результати починаються з маленьких зусиль.",
+            "Кожна сторінка, яку ти читаєш, формує твоє майбутнє.",
+            "Не здавайся, навіть якщо здається, що прогресу немає.",
+            "Будь послідовним — це найпотужніша суперсила.",
+            "Навчання відкриває двері, які іншим здаються зачиненими."
+    );
+
 
     public static void main(String[] args) {
         Application.launch(FxStarter.class, args);
     }
 
-    // ------------------ PDF Export ------------------
     public static <T> void exportTableViewToPDF(TableView<T> tableView, Stage stage, String filePath) {
         try {
             // Ініціалізація PDF-документа
@@ -68,7 +89,6 @@ public class StudyCod {
             PdfDocument pdfDocument = new PdfDocument(writer);
             Document document = new Document(pdfDocument, PageSize.A4);
 
-            // Фон сторінки
             DeviceRgb backgroundColor = new DeviceRgb(28, 28, 28);
             pdfDocument.addNewPage();
             PdfCanvas canvas = new PdfCanvas(pdfDocument.getLastPage());
@@ -76,7 +96,6 @@ public class StudyCod {
                     .rectangle(0, 0, pdfDocument.getDefaultPageSize().getWidth(), pdfDocument.getDefaultPageSize().getHeight())
                     .fill();
 
-            // Завантаження шрифтів
             PdfFont arialFont = PdfFontFactory.createFont(
                     StudyCod.class.getResource("/ArialMT.ttf").toString(),
                     PdfFontFactory.EmbeddingStrategy.PREFER_EMBEDDED
@@ -86,7 +105,6 @@ public class StudyCod {
                     PdfFontFactory.EmbeddingStrategy.PREFER_EMBEDDED
             );
 
-            // Заголовок
             Paragraph title = new Paragraph("Журнал оцінювання")
                     .setFontSize(18)
                     .setFont(arialBoldFont)
@@ -95,10 +113,10 @@ public class StudyCod {
                     .setMarginBottom(20);
             document.add(title);
 
-            // Інформація про користувача
-            String nickname = "Юзернейм: " + u.getUsername();
-            String id = "ID: " + u.getId();
-            String kzs = "КСЗ: " + u.getDifus();
+            User session = User.user();
+            String nickname = "Юзернейм: " + (session.getUsername() != null ? session.getUsername() : "");
+            String id = "ID: " + (session.getId() != null ? session.getId() : "");
+            String kzs = "КСЗ: " + session.getDifus();
             String[] labels = {nickname, id, kzs};
 
             for (String label : labels) {
@@ -111,7 +129,7 @@ public class StudyCod {
                 document.add(labelParagraph);
             }
 
-            // Таблиця
+
             ObservableList<TableColumn<T, ?>> columns = tableView.getColumns();
             ObservableList<T> items = tableView.getItems();
             Table pdfTable = new Table(UnitValue.createPercentArray(columns.size()));
@@ -130,7 +148,6 @@ public class StudyCod {
                 pdfTable.addHeaderCell(headerCell);
             }
 
-            // Дані таблиці
             for (int i = 0; i < items.size(); i++) {
                 T item = items.get(i);
                 DeviceRgb rowColor = (i % 2 == 0) ? new DeviceRgb(51, 51, 51) : new DeviceRgb(34, 34, 34);
@@ -148,7 +165,6 @@ public class StudyCod {
                     pdfTable.addCell(cell);
                 }
 
-                // Нова сторінка кожні 30 рядків
                 if (i % 30 == 0 && i != 0) {
                     pdfDocument.addNewPage();
                     canvas = new PdfCanvas(pdfDocument.getLastPage());
@@ -158,7 +174,6 @@ public class StudyCod {
                 }
             }
 
-            // Додавання таблиці до документа
             document.add(pdfTable);
             document.close();
 
@@ -167,45 +182,24 @@ public class StudyCod {
         }
     }
 
-    // ------------------ JSON Parsing ------------------
-// В класс StudyCod добавьте этот метод
-    public static int transformTexttoJSON(String response) {
-        try {
-            // Проверяем, является ли response валидным JSON
-            if (response == null || !response.trim().startsWith("{")) {
-                return -1;
-            }
-
-            JSONObject jsonResponse = new JSONObject(response);
-            JSONArray choices = jsonResponse.getJSONArray("choices");
-
-            if (choices.length() > 0) {
-                JSONObject message = choices.getJSONObject(0).getJSONObject("message");
-                String content = message.getString("content").trim();
-                return Integer.parseInt(content);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return -1;
-    }
 
     public static String motivateAdvice() {
-        return AiRequest.requestToAI("Дай коротку мотиваційну пораду для студента.");
+        int index = (int) (Math.random() * STUDENT_TIPS.size());
+        return STUDENT_TIPS.get(index);
     }
 
-    public static String generateCodeTemplate(String task) {
-        return AiRequest.requestToAI("Згенеруй код на Java для завдання: " + task);
+    public static String Comment(String code, String ttext, int grade) {
+        return AiRequest.requestToAI(
+                "Прокоментуй код коротко та зрозуміло. Вкажи, що добре, а що можна покращити. " +
+                        "Не використовуй форматування, списки або HTML.\n\n" +
+                        "Код:\n" + code + "\n\n" +
+                        "Текст завдання:\n" + ttext + "\n\n" +
+                        "Оцінка: " + grade
+        );
     }
 
-    public static String Comment(String code, String ttext, int grade1, int grade2, int grade3, int grade4) {
-        return AiRequest.requestToAI("Оціни та прокоментуй код:\n" + code +
-                "\nТекст: " + ttext +
-                "\nОцінки: " + grade1 + ", " + grade2 + ", " + grade3 + ", " + grade4);
-    }
 
 
-    // ------------------ JavaFX + Spring ------------------
     public static class FxStarter extends Application {
         @Override
         public void init() {

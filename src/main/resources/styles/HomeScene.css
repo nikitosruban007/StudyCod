@@ -72,3 +72,26 @@
 .icon-button:hover {
     -fx-background-color: rgba(60,179,113,0.1);
 }
+
+.lang-choice {
+    -fx-background-color: #333333;
+    -fx-text-fill: #eeeeee;
+    -fx-font-family: "JetBrains Mono";
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-padding: 5 10;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #3cb371;
+    -fx-border-width: 2px;
+    -fx-effect: dropshadow(gaussian, rgba(60,179,113,0.3), 8, 0, 0, 4);
+}
+
+.lang-choice:hover {
+    -fx-background-color: #3cb371;
+    -fx-text-fill: #000000;
+}
+
+.lang-choice:focused {
+    -fx-border-color: #66cdaa;
+}

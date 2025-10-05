@@ -8,24 +8,24 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.fx.controllers.GradesSceneController">
-    <top>
+<BorderPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.fx.controllers.GradesSceneController">
+   <left>
         <AnchorPane prefHeight="1080.0" prefWidth="1866.0" styleClass="root" stylesheets="@styles/GradesScenes.css" BorderPane.alignment="CENTER">
-            <Label layoutX="464.0" layoutY="132.0" text="Журнал оцінювання" styleClass="main-title">
+            <Label layoutX="464.0" layoutY="132.0" styleClass="main-title" text="Журнал оцінювання">
                 <font>
                     <Font name="JetBrains Mono Bold" size="50.0" />
                 </font>
             </Label>
-            <Button layoutX="464.0" layoutY="856.0" onAction="#goBackToHome" text="Назад" styleClass="nav-button" />
-            <Button layoutX="1123.0" layoutY="856.0" onAction="#exportTopdf" text="Експорт" styleClass="nav-button" />
+            <Button layoutX="464.0" layoutY="856.0" onAction="#goBackToHome" styleClass="nav-button" text="Назад" />
+            <Button layoutX="1159.0" layoutY="856.0" onAction="#exportTopdf" styleClass="nav-button" text="Експорт" />
             <TableView fx:id="gradesTable" layoutX="464.0" layoutY="241.0" prefHeight="598.0" prefWidth="937.0" styleClass="grades-table">
                 <columns>
-                    <TableColumn fx:id="taskNameColumn" prefWidth="158.4000244140625" text="Завдання" styleClass="table-column" />
-                    <TableColumn fx:id="gradeColumn" prefWidth="73.5999755859375" text="Оцінка" styleClass="table-column" />
-                    <TableColumn fx:id="commentsColumn" prefWidth="705.5999755859375" text="Коментар" styleClass="table-column" />
+                    <TableColumn fx:id="taskNameColumn" prefWidth="158.4000244140625" styleClass="table-column" text="Завдання" />
+                    <TableColumn fx:id="gradeColumn" prefWidth="73.5999755859375" styleClass="table-column" text="Оцінка" />
+                    <TableColumn fx:id="commentsColumn" prefWidth="705.5999755859375" styleClass="table-column" text="Коментар" />
                 </columns>
             </TableView>
-            <Button onAction="#refresh" layoutX="1292.0" layoutY="856.0" text="Оновити" styleClass="nav-button" />
+            <Button layoutX="1292.0" layoutY="856.0" onAction="#refresh" styleClass="nav-button" text="Оновити" />
         </AnchorPane>
-    </top>
+   </left>
 </BorderPane>
